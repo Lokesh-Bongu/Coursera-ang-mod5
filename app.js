@@ -117,6 +117,7 @@
         };
 
         service.getFavoriteMenuItem = function() {
+            console.log("Favorite menu item:", favoriteMenuItem);
             return favoriteMenuItem;
         };
     }
