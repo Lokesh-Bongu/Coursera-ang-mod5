@@ -39,11 +39,13 @@
     angular.module('RestaurantApp')
     .controller('SignUpController', SignUpController);
 
-    SignUpController.$inject = ['SignUpService', '$location'];
+    SignUpController.$inject = ['SignUpService', '$location']; // Inject $location here
     function SignUpController(SignUpService, $location) {
+   
         var signupCtrl = this;
 
         signupCtrl.submitForm = function() {
+            // Form submission logic
             SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
             signupCtrl.message = "Your information has been saved.";
         };
@@ -63,7 +65,6 @@
     function MyInfoController(SignUpService) {
         var myInfoCtrl = this;
 
-        // Retrieve user information and favorite menu item
         myInfoCtrl.userInfo = SignUpService.getUserInfo();
         myInfoCtrl.favoriteMenuItem = SignUpService.getFavoriteMenuItem();
     }
@@ -78,6 +79,7 @@
         var favoriteMenuItem;
 
         service.saveUserData = function(firstName, lastName, email, phone, favoriteMenuItem) {
+            // Save user data
             userInfo = {
                 firstName: firstName,
                 lastName: lastName,
@@ -113,8 +115,8 @@
         };
 
         service.getFavoriteMenuItem = function() {
-            console.log("service.favoriteMenuItem",service.favoriteMenuItem,favoriteMenuItem)
-            return favoriteMenuItem; // Return directly from service
+            console.log("favoriteMenuItem",favoriteMenuItem)
+            return favoriteMenuItem;
         };
     }
 })();
