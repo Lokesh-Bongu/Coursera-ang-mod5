@@ -6,6 +6,7 @@
 
     RoutesConfig.$inject = ['$routeProvider'];
     function RoutesConfig($routeProvider) {
+        console.log("kkkkkkkk")
         $routeProvider
         .when('/signup', {
             templateUrl: 'signup.html',
@@ -41,6 +42,7 @@
 
     SignUpController.$inject = ['SignUpService', '$location']; // Inject $location here
     function SignUpController(SignUpService, $location) {
+        console.log("lllllllllllll")
         var signupCtrl = this;
 
         signupCtrl.submitForm = function() {
@@ -62,6 +64,7 @@
 
     MyInfoController.$inject = ['SignUpService'];
     function MyInfoController(SignUpService) {
+        console.log("lllllllllleeeeeeeelll")
         var myInfoCtrl = this;
 
         myInfoCtrl.userInfo = SignUpService.getUserInfo();
