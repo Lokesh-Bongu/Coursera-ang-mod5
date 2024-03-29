@@ -20,23 +20,26 @@
         });
     }
 
-    angular.module('RestaurantApp', [])
+    angular.module('RestaurantApp')
     .controller('MainController', MainController);
 
-MainController.$inject = ['$location'];
-function MainController($location) {
-    var mainCtrl = this;
+    MainController.$inject = ['$location'];
+    function MainController($location) {
+        var mainCtrl = this;
 
-    mainCtrl.goToSignUp = function() {
-        $location.path('/signup');
-    };
+        mainCtrl.goToSignUp = function() {
+            $location.path('/signup');
+        };
 
-    mainCtrl.goToMyInfo = function() {
-        $location.path('/myinfo');
-    };
-}
+        mainCtrl.goToMyInfo = function() {
+            $location.path('/myinfo');
+        };
+    }
 
-    SignUpController.$inject = ['SignUpService', '$location'];
+    angular.module('RestaurantApp')
+    .controller('SignUpController', SignUpController);
+
+    SignUpController.$inject = ['SignUpService', '$location']; // Inject $location here
     function SignUpController(SignUpService, $location) {
         var signupCtrl = this;
 
@@ -54,6 +57,9 @@ function MainController($location) {
         };
     }
 
+    angular.module('RestaurantApp')
+    .controller('MyInfoController', MyInfoController);
+
     MyInfoController.$inject = ['SignUpService'];
     function MyInfoController(SignUpService) {
         var myInfoCtrl = this;
@@ -61,6 +67,9 @@ function MainController($location) {
         myInfoCtrl.userInfo = SignUpService.getUserInfo();
         myInfoCtrl.favoriteMenuItem = SignUpService.getFavoriteMenuItem();
     }
+
+    angular.module('RestaurantApp')
+    .service('SignUpService', SignUpService);
 
     SignUpService.$inject = ['$http'];
     function SignUpService($http) {
