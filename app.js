@@ -117,12 +117,7 @@
         };
 
         service.getFavoriteMenuItem = function() {
-            var favoriteMenuItem = service.getFavoriteMenuItem();
-    var category = favoriteMenuItem.category; // Get category
-    var shortName = favoriteMenuItem.shortName; // Get short name
-    console.log("category",category,shortName)
-   // var imageUrl = 'images/menu/' + category + '_' + shortName + '/menu_items.' + shortName + '.png'; // Construct image URL
-   
+            
             console.log("oooooo",favoriteMenuItem)
             return favoriteMenuItem;
 
