@@ -39,13 +39,11 @@
     angular.module('RestaurantApp')
     .controller('SignUpController', SignUpController);
 
-    SignUpController.$inject = ['SignUpService', '$location']; // Inject $location here
+    SignUpController.$inject = ['SignUpService', '$location'];
     function SignUpController(SignUpService, $location) {
-   
         var signupCtrl = this;
 
         signupCtrl.submitForm = function() {
-            // Form submission logic
             SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
             signupCtrl.message = "Your information has been saved.";
         };
@@ -65,6 +63,7 @@
     function MyInfoController(SignUpService) {
         var myInfoCtrl = this;
 
+        // Retrieve user information and favorite menu item
         myInfoCtrl.userInfo = SignUpService.getUserInfo();
         myInfoCtrl.favoriteMenuItem = SignUpService.getFavoriteMenuItem();
     }
@@ -79,7 +78,6 @@
         var favoriteMenuItem;
 
         service.saveUserData = function(firstName, lastName, email, phone, favoriteMenuItem) {
-            // Save user data
             userInfo = {
                 firstName: firstName,
                 lastName: lastName,
@@ -93,13 +91,11 @@
             return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json')
             .then(function(response) {
                 var menuItems = response.data;
-                console.log("menuItems",menuItems)
                 var menuItemExists = false;
                 for (var categoryKey in menuItems) {
                     var category = menuItems[categoryKey];
                     for (var i = 0; i < category.menu_items.length; i++) {
                         if (category.menu_items[i].name === menuItem) {
-                            console.log("category.menu_items[i].name",category.menu_items[i].name)
                             menuItemExists = true;
                             break;
                         }
@@ -117,8 +113,8 @@
         };
 
         service.getFavoriteMenuItem = function() {
-            console.log("Favorite menu item:", favoriteMenuItem);
-            return favoriteMenuItem;
+            console.log("service.favoriteMenuItem",service.favoriteMenuItem)
+            return service.favoriteMenuItem; // Return directly from service
         };
     }
 })();

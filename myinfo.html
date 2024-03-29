@@ -12,7 +12,11 @@
     <div>
         <strong>Phone:</strong> {{ myInfoCtrl.userInfo.phone }}
     </div>
-    <div>
-        <strong>Favorite Menu Item:</strong> {{ myInfoCtrl.favoriteMenuItem }}
+    <div ng-if="myInfoCtrl.favoriteMenuItem">
+        <strong>Favorite Menu Item:</strong> {{ myInfoCtrl.favoriteMenuItem.title }}
     </div>
+    <div ng-if="myInfoCtrl.favoriteMenuItem">
+        <strong>Description:</strong> {{ myInfoCtrl.favoriteMenuItem.description }}
+    </div>
+
 </div>
