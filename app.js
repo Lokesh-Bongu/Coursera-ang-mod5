@@ -124,11 +124,11 @@
             var shortName = favoriteMenuItem.shortName; // Get short name
             console.log("category",category)
             console.log("shortName",shortName)
-            var pictureUrl = 'images/menu/' + category + '/' + shortName + '.jpg'; // Construct image URL
+           // var pictureUrl = 'images/menu/' + category + '/' + shortName + '.jpg'; // Construct image URL
             return {
                 title: favoriteMenuItem.title,
                 description: favoriteMenuItem.description,
-                pictureUrl: pictureUrl
+              //  pictureUrl: pictureUrl
             };
         };
     }
