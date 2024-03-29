@@ -2,13 +2,10 @@
     'use strict';
 
     angular.module('RestaurantApp', ['ngRoute'])
-        .config(RoutesConfig)
-        .controller('MainController', MainController)
-        .controller('SignUpController', SignUpController)
-        .controller('MyInfoController', MyInfoController)
-        .service('SignUpService', SignUpService);
+        .config(RoutesConfig);
 
     RoutesConfig.$inject = ['$routeProvider'];
+
     function RoutesConfig($routeProvider) {
         $routeProvider
             .when('/signup', {
@@ -24,7 +21,11 @@
             });
     }
 
+    angular.module('RestaurantApp')
+        .controller('MainController', MainController);
+
     MainController.$inject = ['$location'];
+
     function MainController($location) {
         var mainCtrl = this;
 
@@ -37,34 +38,32 @@
         };
     }
 
+    angular.module('RestaurantApp')
+        .controller('SignUpController', SignUpController);
+
     SignUpController.$inject = ['SignUpService', '$location'];
+
     function SignUpController(SignUpService, $location) {
         var signupCtrl = this;
 
         signupCtrl.submitForm = function() {
-            SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem)
-                .then(function() {
-                    signupCtrl.message = "Your information has been saved.";
-                })
-                .catch(function(error) {
-                    console.error("Error saving user data:", error);
-                    signupCtrl.message = "Failed to save user information.";
-                });
+            SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
+            signupCtrl.message = "Your information has been saved.";
         };
 
         signupCtrl.checkMenuItem = function() {
             SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
                 .then(function(response) {
                     signupCtrl.invalidMenuItem = response === null;
-                })
-                .catch(function(error) {
-                    console.error("Error checking menu item:", error);
-                    signupCtrl.invalidMenuItem = true;
                 });
         };
     }
 
+    angular.module('RestaurantApp')
+        .controller('MyInfoController', MyInfoController);
+
     MyInfoController.$inject = ['SignUpService'];
+
     function MyInfoController(SignUpService) {
         var myInfoCtrl = this;
 
@@ -72,23 +71,24 @@
         myInfoCtrl.favoriteMenuItem = SignUpService.getFavoriteMenuItem();
     }
 
+    angular.module('RestaurantApp')
+        .service('SignUpService', SignUpService);
+
     SignUpService.$inject = ['$http'];
+
     function SignUpService($http) {
         var service = this;
         var userInfo;
         var favoriteMenuItem;
 
-        service.saveUserData = function(firstName, lastName, email, phone, favoriteMenuItem) {
+        service.saveUserData = function(firstName, lastName, email, phone, favoriteMenuItemData) {
             userInfo = {
                 firstName: firstName,
                 lastName: lastName,
                 email: email,
                 phone: phone
             };
-            service.favoriteMenuItem = favoriteMenuItem;
-
-            // Simulate asynchronous behavior with a promise
-            return Promise.resolve(); // Replace this with actual saving logic if needed
+            favoriteMenuItem = favoriteMenuItemData;
         };
 
         service.checkMenuItem = function(menuItem) {
@@ -117,8 +117,9 @@
         };
 
         service.getFavoriteMenuItem = function() {
-            console.log("kkkkkkkk",favoriteMenuItem)
+            console.log("oooooo",favoriteMenuItem)
             return favoriteMenuItem;
+
         };
     }
 })();
