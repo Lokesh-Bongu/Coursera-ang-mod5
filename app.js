@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    angular.module('RestaurantApp')
+    angular.module('RestaurantApp',['ngRoute'])
     .config(RoutesConfig);
 
     RoutesConfig.$inject = ['$routeProvider'];
@@ -20,24 +20,21 @@
         });
     }
 
-    angular.module('RestaurantApp')
-    .controller('MainController', MainController)
-    .controller('SignUpController', SignUpController)
-    .controller('MyInfoController', MyInfoController)
-    .service('SignUpService', SignUpService);
+    angular.module('RestaurantApp', [])
+    .controller('MainController', MainController);
 
-    MainController.$inject = ['$location'];
-    function MainController($location) {
-        var mainCtrl = this;
+MainController.$inject = ['$location'];
+function MainController($location) {
+    var mainCtrl = this;
 
-        mainCtrl.goToSignUp = function() {
-            $location.path('/signup');
-        };
+    mainCtrl.goToSignUp = function() {
+        $location.path('/signup');
+    };
 
-        mainCtrl.goToMyInfo = function() {
-            $location.path('/myinfo');
-        };
-    }
+    mainCtrl.goToMyInfo = function() {
+        $location.path('/myinfo');
+    };
+}
 
     SignUpController.$inject = ['SignUpService', '$location'];
     function SignUpController(SignUpService, $location) {
