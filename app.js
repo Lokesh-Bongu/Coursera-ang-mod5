@@ -113,8 +113,8 @@
         };
 
         service.getFavoriteMenuItem = function() {
-            console.log("service.favoriteMenuItem",service.favoriteMenuItem)
-            return service.favoriteMenuItem; // Return directly from service
+            console.log("service.favoriteMenuItem",service.favoriteMenuItem,favoriteMenuItem)
+            return favoriteMenuItem; // Return directly from service
         };
     }
 })();
