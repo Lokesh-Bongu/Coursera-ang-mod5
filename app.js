@@ -93,6 +93,7 @@
             return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json')
             .then(function(response) {
                 var menuItems = response.data;
+                console.log("menuItems",menuItems)
                 var menuItemExists = false;
                 for (var categoryKey in menuItems) {
                     var category = menuItems[categoryKey];
@@ -115,7 +116,7 @@
         };
 
         service.getFavoriteMenuItem = function() {
-            console.log("favoriteMenuItem",favoriteMenuItem)
+            console.log("lllll",favoriteMenuItem)
             return favoriteMenuItem;
         };
     }
