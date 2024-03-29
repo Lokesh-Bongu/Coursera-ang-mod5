@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    angular.module('RestaurantApp',['ngRoute'])
+    angular.module('RestaurantApp', ['ngRoute'])
     .config(RoutesConfig);
 
     RoutesConfig.$inject = ['$routeProvider'];
@@ -66,7 +66,7 @@
         var myInfoCtrl = this;
 
         myInfoCtrl.userInfo = SignUpService.getUserInfo();
-        myInfoCtrl.favoriteMenuItem = SignUpService.getFavoriteMenuItem();
+        myInfoCtrl.favoriteMenuItem = SignUpService.getFavoriteMenuItemWithDetails();
     }
 
     angular.module('RestaurantApp')
@@ -116,6 +116,20 @@
 
         service.getFavoriteMenuItem = function() {
             return favoriteMenuItem;
+        };
+
+        service.getFavoriteMenuItemWithDetails = function() {
+            var favoriteMenuItem = service.getFavoriteMenuItem();
+            var category = favoriteMenuItem.category; // Get category
+            var shortName = favoriteMenuItem.shortName; // Get short name
+            console.log("category",category)
+            console.log("shortName",shortName)
+            var pictureUrl = 'images/menu/' + category + '/' + shortName + '.jpg'; // Construct image URL
+            return {
+                title: favoriteMenuItem.title,
+                description: favoriteMenuItem.description,
+                pictureUrl: pictureUrl
+            };
         };
     }
 })();
