@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    angular.module('RestaurantApp', ['ngRoute'])
+    angular.module('RestaurantApp')
     .config(RoutesConfig);
 
     RoutesConfig.$inject = ['$routeProvider'];
