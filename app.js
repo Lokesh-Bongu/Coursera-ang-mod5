@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    angular.module('RestaurantApp', ['ngRoute'])
+    angular.module('RestaurantApp',['ngRoute'])
     .config(RoutesConfig);
 
     RoutesConfig.$inject = ['$routeProvider'];
@@ -66,7 +66,7 @@
         var myInfoCtrl = this;
 
         myInfoCtrl.userInfo = SignUpService.getUserInfo();
-        myInfoCtrl.favoriteMenuItem = SignUpService.getFavoriteMenuItemWithDetails();
+        myInfoCtrl.favoriteMenuItem = SignUpService.getFavoriteMenuItem();
     }
 
     angular.module('RestaurantApp')
@@ -99,6 +99,7 @@
                     var category = menuItems[categoryKey];
                     for (var i = 0; i < category.menu_items.length; i++) {
                         if (category.menu_items[i].name === menuItem) {
+                            console.log("category.menu_items[i].name",category.menu_items[i].name)
                             menuItemExists = true;
                             break;
                         }
@@ -117,21 +118,6 @@
 
         service.getFavoriteMenuItem = function() {
             return favoriteMenuItem;
-        };
-
-        service.getFavoriteMenuItemWithDetails = function() {
-            var favoriteMenuItem = service.getFavoriteMenuItem();
-            console.log("favoriteMenuItem",favoriteMenuItem)
-            //var category = favoriteMenuItem.category; // Get category
-            var shortName = favoriteMenuItem.shortName; // Get short name
-            console.log("category",category)
-            console.log("shortName",shortName)
-           // var pictureUrl = 'images/menu/' + category + '/' + shortName + '.jpg'; // Construct image URL
-            return {
-                title: favoriteMenuItem.title,
-                description: favoriteMenuItem.description,
-              //  pictureUrl: pictureUrl
-            };
         };
     }
 })();
