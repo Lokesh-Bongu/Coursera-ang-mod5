@@ -1,7 +1,18 @@
 <div>
     <h2>My Info</h2>
-    <!-- Show user's registered information here -->
-    <div>{{ myInfoCtrl.userInfo }}</div>
-    <!-- Show favorite menu item details here -->
-    <div>{{ myInfoCtrl.favoriteMenuItem }}</div>
+    <div>
+        <strong>First Name:</strong> {{ myInfoCtrl.userInfo.firstName }}
+    </div>
+    <div>
+        <strong>Last Name:</strong> {{ myInfoCtrl.userInfo.lastName }}
+    </div>
+    <div>
+        <strong>Email:</strong> {{ myInfoCtrl.userInfo.email }}
+    </div>
+    <div>
+        <strong>Phone:</strong> {{ myInfoCtrl.userInfo.phone }}
+    </div>
+    <div>
+        <strong>Favorite Menu Item:</strong> {{ myInfoCtrl.favoriteMenuItem }}
+    </div>
 </div>

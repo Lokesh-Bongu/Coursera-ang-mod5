@@ -1,9 +1,11 @@
 <div>
     <h2>Sign Up</h2>
     <form name="signupForm" ng-submit="signupCtrl.submitForm()" novalidate>
-        <!-- Form fields for first name, last name, email, phone, and favorite menu item -->
-        <input type="text" ng-model="signupCtrl.firstName" name="firstName" required>
-        <!-- Add other form fields here -->
+        <input type="text" ng-model="signupCtrl.firstName" name="firstName" placeholder="First Name" required>
+        <input type="text" ng-model="signupCtrl.lastName" name="lastName" placeholder="Last Name" required>
+        <input type="email" ng-model="signupCtrl.email" name="email" placeholder="Email" required>
+        <input type="tel" ng-model="signupCtrl.phone" name="phone" placeholder="Phone" required>
+        <input type="text" ng-model="signupCtrl.favoriteMenuItem" name="favoriteMenuItem" placeholder="Favorite Menu Item" ng-blur="signupCtrl.checkMenuItem()" required>
         <button type="submit" ng-disabled="signupForm.$invalid">Submit</button>
     </form>
     <div ng-show="signupCtrl.invalidMenuItem">No such menu number exists.</div>
