@@ -149,7 +149,7 @@
                             }
                         }
 
-                        var imageUrl = 'images/menu/' + categoryShortName + '/' + menuItemShortName + '.png';
+                        var imageUrl = 'images/menu/' + categoryShortName + '/' + menuItemShortName + '.jpg';
 
                         return {
                             name: favoriteMenuItemData,
