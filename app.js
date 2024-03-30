@@ -41,15 +41,18 @@
     angular.module('RestaurantApp')
         .controller('SignUpController', SignUpController);
 
-    SignUpController.$inject = ['SignUpService', '$location'];
+    SignUpController.$inject = ['SignUpService', '$location', '$scope'];
 
-    function SignUpController(SignUpService, $location) {
+    function SignUpController(SignUpService, $location, $scope) {
         var signupCtrl = this;
         signupCtrl.signupFormSubmitted = false; // Initialize form submission state
 
+        // Initialize the form object
+        $scope.signupForm = {};
+
         signupCtrl.submitForm = function() {
             signupCtrl.signupFormSubmitted = true; // Set form submission state to true
-            if (signupCtrl.signupForm.$valid && !signupCtrl.invalidMenuItem) {
+            if ($scope.signupForm.$valid) {
                 SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
                 signupCtrl.message = "Your information has been saved.";
             }
