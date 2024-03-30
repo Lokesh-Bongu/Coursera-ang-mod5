@@ -45,10 +45,14 @@
 
     function SignUpController(SignUpService, $location) {
         var signupCtrl = this;
+        signupCtrl.signupFormSubmitted = false; // Initialize form submission state
 
         signupCtrl.submitForm = function() {
-            SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
-            signupCtrl.message = "Your information has been saved.";
+            signupCtrl.signupFormSubmitted = true; // Set form submission state to true
+            if (signupCtrl.signupForm.$valid) {
+                SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
+                signupCtrl.message = "Your information has been saved.";
+            }
         };
 
         signupCtrl.checkMenuItem = function() {
@@ -133,12 +137,12 @@
                     var favoriteMenuItemData = service.getFavoriteMenuItem();
 
                     if (favoriteMenuItemData) {
-                        var categoryShortName, menuItemShortName, menuItemDescription;
+                        var categoryShortName, menuItemShortName;
 
                         for (var categoryKey in menuItems) {
                             var category = menuItems[categoryKey];
                             for (var i = 0; i < category.menu_items.length; i++) {
-                                if (category.menu_items[i].name === favoriteMenuItemData) {
+                                if (category.menu_items[i].short_name === favoriteMenuItemData) {
                                     categoryShortName = category.category.short_name;
                                     menuItemShortName = category.menu_items[i].short_name;
                                     menuItemDescription = category.menu_items[i].description;
@@ -151,13 +155,11 @@
                         }
 
                         var imageUrl = 'images/menu/' + categoryShortName + '/' + menuItemShortName + '.jpg';
-                        var menuItemDetails = {
-                            name: favoriteMenuItemData,
-                            imageUrl: imageUrl,
-                            description: menuItemDescription
-                        };
 
-                        return menuItemDetails;
+                        return {
+                            name: favoriteMenuItemData,
+                            imageUrl: imageUrl + menuItemDescription
+                        };
                     } else {
                         return null;
                     }

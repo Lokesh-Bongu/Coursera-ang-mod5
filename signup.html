@@ -1,43 +1,33 @@
-<div class="container">
+<div ng-controller="SignUpController as signupCtrl">
     <h2>Sign Up</h2>
     <form name="signupForm" ng-submit="signupCtrl.submitForm()" novalidate>
-        <div class="form-group">
+        <div>
             <label for="firstName">First Name:</label>
-            <input type="text" class="form-control" id="firstName" name="firstName" ng-model="signupCtrl.firstName" required>
-            <div ng-messages="signupForm.firstName.$error" ng-if="signupForm.firstName.$dirty || signupForm.$submitted">
-                <div ng-message="required">First Name is required.</div>
-            </div>
+            <input type="text" id="firstName" name="firstName" ng-model="signupCtrl.firstName" ng-required="signupFormSubmitted && signupForm.firstName.$error.required">
+            <span ng-show="signupFormSubmitted && signupForm.firstName.$error.required">First Name is required.</span>
         </div>
-        <div class="form-group">
+        <div>
             <label for="lastName">Last Name:</label>
-            <input type="text" class="form-control" id="lastName" name="lastName" ng-model="signupCtrl.lastName" required>
-            <div ng-messages="signupForm.lastName.$error" ng-if="signupForm.lastName.$dirty || signupForm.$submitted">
-                <div ng-message="required">Last Name is required.</div>
-            </div>
+            <input type="text" id="lastName" name="lastName" ng-model="signupCtrl.lastName" ng-required="signupFormSubmitted && signupForm.lastName.$error.required">
+            <span ng-show="signupFormSubmitted && signupForm.lastName.$error.required">Last Name is required.</span>
         </div>
-        <div class="form-group">
+        <div>
             <label for="email">Email:</label>
-            <input type="email" class="form-control" id="email" name="email" ng-model="signupCtrl.email" required>
-            <div ng-messages="signupForm.email.$error" ng-if="signupForm.email.$dirty || signupForm.$submitted">
-                <div ng-message="required">Email is required.</div>
-                <div ng-message="email">Invalid email address.</div>
-            </div>
+            <input type="email" id="email" name="email" ng-model="signupCtrl.email" ng-required="signupFormSubmitted && signupForm.email.$error.required">
+            <span ng-show="signupFormSubmitted && signupForm.email.$error.required">Email is required.</span>
+            <span ng-show="signupFormSubmitted && signupForm.email.$error.email">Invalid email address.</span>
         </div>
-        <div class="form-group">
+        <div>
             <label for="phone">Phone Number:</label>
-            <input type="tel" class="form-control" id="phone" name="phone" ng-model="signupCtrl.phone" required>
-            <div ng-messages="signupForm.phone.$error" ng-if="signupForm.phone.$dirty || signupForm.$submitted">
-                <div ng-message="required">Phone Number is required.</div>
-            </div>
+            <input type="tel" id="phone" name="phone" ng-model="signupCtrl.phone" ng-required="signupFormSubmitted && signupForm.phone.$error.required">
+            <span ng-show="signupFormSubmitted && signupForm.phone.$error.required">Phone Number is required.</span>
         </div>
-        <div class="form-group">
+        <div>
             <label for="favoriteMenuItem">Favorite Menu Item (Menu Number):</label>
-            <input type="text" class="form-control" id="favoriteMenuItem" name="favoriteMenuItem" ng-model="signupCtrl.favoriteMenuItem" required>
-            <div ng-messages="signupForm.favoriteMenuItem.$error" ng-if="signupForm.favoriteMenuItem.$dirty || signupForm.$submitted">
-                <div ng-message="required">Favorite Menu Item is required.</div>
-            </div>
+            <input type="text" id="favoriteMenuItem" name="favoriteMenuItem" ng-model="signupCtrl.favoriteMenuItem" ng-required="signupFormSubmitted && signupForm.favoriteMenuItem.$error.required">
+            <span ng-show="signupFormSubmitted && signupForm.favoriteMenuItem.$error.required">Favorite Menu Item is required.</span>
         </div>
-        <button type="submit" class="btn btn-primary" ng-disabled="signupForm.$invalid">Submit</button>
+        <button type="submit">Submit</button>
     </form>
-    <div class="alert alert-success" role="alert" ng-if="signupCtrl.message">{{ signupCtrl.message }}</div>
+    <div>{{ signupCtrl.message }}</div>
 </div>
