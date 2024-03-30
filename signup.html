@@ -1,6 +1,6 @@
 <div ng-controller="SignUpController as signupCtrl">
     <h2>Sign Up</h2>
-    <form name="signupForm" ng-submit="signupCtrl.submitForm()" novalidate>
+    <form name="signupCtrl.signupForm" ng-submit="signupCtrl.submitForm()" novalidate>
         <div>
             <label for="firstName">First Name:</label>
             <input type="text" id="firstName" name="firstName" ng-model="signupCtrl.firstName" ng-required="signupCtrl.signupFormSubmitted && signupCtrl.signupForm.firstName.$error.required">
@@ -24,8 +24,9 @@
         </div>
         <div>
             <label for="favoriteMenuItem">Favorite Menu Item (Menu Number):</label>
-            <input type="text" id="favoriteMenuItem" name="favoriteMenuItem" ng-model="signupCtrl.favoriteMenuItem" ng-change="signupCtrl.checkMenuItem()" ng-required="signupCtrl.signupFormSubmitted && signupCtrl.signupForm.favoriteMenuItem.$error.required">
+            <input type="text" id="favoriteMenuItem" name="favoriteMenuItem" ng-model="signupCtrl.favoriteMenuItem" ng-required="signupCtrl.signupFormSubmitted && signupCtrl.signupForm.favoriteMenuItem.$error.required">
             <span ng-show="signupCtrl.invalidMenuItem">No such menu number exists.</span>
+            <button ng-click="signupCtrl.checkMenuItem()">Check</button>
             <span ng-show="signupCtrl.signupFormSubmitted && signupCtrl.signupForm.favoriteMenuItem.$error.required">Favorite Menu Item is required.</span>
         </div>
         <button type="submit">Submit</button>
