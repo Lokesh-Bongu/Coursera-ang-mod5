@@ -1,31 +1,31 @@
 <div ng-controller="SignUpController as signupCtrl">
     <h2>Sign Up</h2>
-    <form name="signupCtrl.signupForm" ng-submit="signupCtrl.submitForm()" novalidate>
+    <form name="signupForm" ng-submit="signupCtrl.submitForm()" novalidate>
         <div>
             <label for="firstName">First Name:</label>
-            <input type="text" id="firstName" name="firstName" ng-model="signupCtrl.firstName" ng-required="signupCtrl.signupFormSubmitted && signupCtrl.signupForm.firstName.$error.required">
-            <span ng-show="signupCtrl.signupFormSubmitted && signupCtrl.signupForm.firstName.$error.required">First Name is required.</span>
+            <input type="text" id="firstName" name="firstName" ng-model="signupCtrl.firstName" ng-required="signupFormSubmitted && signupForm.firstName.$error.required">
+            <span ng-show="signupFormSubmitted && signupForm.firstName.$error.required">First Name is required.</span>
         </div>
         <div>
             <label for="lastName">Last Name:</label>
-            <input type="text" id="lastName" name="lastName" ng-model="signupCtrl.lastName" ng-required="signupCtrl.signupFormSubmitted && signupCtrl.signupForm.lastName.$error.required">
-            <span ng-show="signupCtrl.signupFormSubmitted && signupCtrl.signupForm.lastName.$error.required">Last Name is required.</span>
+            <input type="text" id="lastName" name="lastName" ng-model="signupCtrl.lastName" ng-required="signupFormSubmitted && signupForm.lastName.$error.required">
+            <span ng-show="signupFormSubmitted && signupForm.lastName.$error.required">Last Name is required.</span>
         </div>
         <div>
             <label for="email">Email:</label>
-            <input type="email" id="email" name="email" ng-model="signupCtrl.email" ng-required="signupCtrl.signupFormSubmitted && signupCtrl.signupForm.email.$error.required">
-            <span ng-show="signupCtrl.signupFormSubmitted && signupCtrl.signupForm.email.$error.required">Email is required.</span>
-            <span ng-show="signupCtrl.signupFormSubmitted && signupCtrl.signupForm.email.$error.email">Invalid email address.</span>
+            <input type="email" id="email" name="email" ng-model="signupCtrl.email" ng-required="signupFormSubmitted && signupForm.email.$error.required">
+            <span ng-show="signupFormSubmitted && signupForm.email.$error.required">Email is required.</span>
+            <span ng-show="signupFormSubmitted && signupForm.email.$error.email">Invalid email address.</span>
         </div>
         <div>
             <label for="phone">Phone Number:</label>
-            <input type="tel" id="phone" name="phone" ng-model="signupCtrl.phone" ng-required="signupCtrl.signupFormSubmitted && signupCtrl.signupForm.phone.$error.required">
-            <span ng-show="signupCtrl.signupFormSubmitted && signupCtrl.signupForm.phone.$error.required">Phone Number is required.</span>
+            <input type="tel" id="phone" name="phone" ng-model="signupCtrl.phone" ng-required="signupFormSubmitted && signupForm.phone.$error.required">
+            <span ng-show="signupFormSubmitted && signupForm.phone.$error.required">Phone Number is required.</span>
         </div>
         <div>
             <label for="favoriteMenuItem">Favorite Menu Item (Menu Number):</label>
-            <input type="text" id="favoriteMenuItem" name="favoriteMenuItem" ng-model="signupCtrl.favoriteMenuItem" ng-required="signupCtrl.signupFormSubmitted && signupCtrl.signupForm.favoriteMenuItem.$error.required">
-            <span ng-show="signupCtrl.signupFormSubmitted && signupCtrl.signupForm.favoriteMenuItem.$error.required">Favorite Menu Item is required.</span>
+            <input type="text" id="favoriteMenuItem" name="favoriteMenuItem" ng-model="signupCtrl.favoriteMenuItem" ng-required="signupFormSubmitted && signupForm.favoriteMenuItem.$error.required">
+            <span ng-show="signupFormSubmitted && signupForm.favoriteMenuItem.$error.required">Favorite Menu Item is required.</span>
             <span ng-show="signupCtrl.invalidMenuItem">No such menu number exists.</span>
         </div>
         <button type="submit">Submit</button>

@@ -49,7 +49,7 @@
 
         signupCtrl.submitForm = function() {
             signupCtrl.signupFormSubmitted = true; // Set form submission state to true
-            if (signupCtrl.signupForm.$valid) {
+            if (signupCtrl.signupForm.$valid && !signupCtrl.invalidMenuItem) {
                 SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
                 signupCtrl.message = "Your information has been saved.";
             }
