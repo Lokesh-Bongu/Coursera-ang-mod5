@@ -41,18 +41,15 @@
     angular.module('RestaurantApp')
         .controller('SignUpController', SignUpController);
 
-    SignUpController.$inject = ['SignUpService', '$location', '$scope'];
+    SignUpController.$inject = ['SignUpService', '$location'];
 
-    function SignUpController(SignUpService, $location, $scope) {
+    function SignUpController(SignUpService, $location) {
         var signupCtrl = this;
         signupCtrl.signupFormSubmitted = false; // Initialize form submission state
 
-        // Initialize the form object
-        $scope.signupForm = {};
-
         signupCtrl.submitForm = function() {
             signupCtrl.signupFormSubmitted = true; // Set form submission state to true
-            if ($scope.signupForm.$valid) {
+            if (signupCtrl.signupForm.$valid) {
                 SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
                 signupCtrl.message = "Your information has been saved.";
             }
@@ -129,10 +126,6 @@
             return userInfo;
         };
 
-        service.getFavoriteMenuItem = function() {
-            return favoriteMenuItem;
-        };
-
         service.getFavoriteMenuItemWithDetails = function() {
             return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json')
                 .then(function(response) {
@@ -140,7 +133,7 @@
                     var favoriteMenuItemData = service.getFavoriteMenuItem();
 
                     if (favoriteMenuItemData) {
-                        var categoryShortName, menuItemShortName, menuItemDescription;
+                        var categoryShortName, menuItemShortName;
 
                         for (var categoryKey in menuItems) {
                             var category = menuItems[categoryKey];
@@ -148,7 +141,6 @@
                                 if (category.menu_items[i].short_name === favoriteMenuItemData) {
                                     categoryShortName = category.category.short_name;
                                     menuItemShortName = category.menu_items[i].short_name;
-                                    menuItemDescription = category.menu_items[i].description;
                                     break;
                                 }
                             }
@@ -161,8 +153,7 @@
 
                         return {
                             name: favoriteMenuItemData,
-                            imageUrl: imageUrl,
-                            description: menuItemDescription
+                            imageUrl: imageUrl
                         };
                     } else {
                         return null;
