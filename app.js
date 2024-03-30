@@ -137,7 +137,7 @@
                     var favoriteMenuItemData = service.getFavoriteMenuItem();
 
                     if (favoriteMenuItemData) {
-                        var categoryShortName, menuItemShortName;
+                        var categoryShortName, menuItemShortName, menuItemDescription;
 
                         for (var categoryKey in menuItems) {
                             var category = menuItems[categoryKey];
@@ -158,7 +158,8 @@
 
                         return {
                             name: favoriteMenuItemData,
-                            imageUrl: imageUrl + menuItemDescription
+                            imageUrl: imageUrl,
+                            description: menuItemDescription
                         };
                     } else {
                         return null;
