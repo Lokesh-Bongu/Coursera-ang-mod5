@@ -133,7 +133,7 @@
                     var favoriteMenuItemData = service.getFavoriteMenuItem();
 
                     if (favoriteMenuItemData) {
-                        var categoryShortName, menuItemShortName;
+                        var categoryShortName, menuItemShortName, menuItemDescription;
 
                         for (var categoryKey in menuItems) {
                             var category = menuItems[categoryKey];
@@ -141,6 +141,7 @@
                                 if (category.menu_items[i].name === favoriteMenuItemData) {
                                     categoryShortName = category.category.short_name;
                                     menuItemShortName = category.menu_items[i].short_name;
+                                    menuItemDescription = category.menu_items[i].description;
                                     break;
                                 }
                             }
@@ -150,11 +151,13 @@
                         }
 
                         var imageUrl = 'images/menu/' + categoryShortName + '/' + menuItemShortName + '.jpg';
-
-                        return {
+                        var menuItemDetails = {
                             name: favoriteMenuItemData,
-                            imageUrl: imageUrl
+                            imageUrl: imageUrl,
+                            description: menuItemDescription
                         };
+
+                        return menuItemDetails;
                     } else {
                         return null;
                     }
