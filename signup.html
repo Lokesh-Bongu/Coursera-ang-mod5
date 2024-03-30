@@ -24,9 +24,9 @@
         </div>
         <div>
             <label for="favoriteMenuItem">Favorite Menu Item (Menu Number):</label>
-            <input type="text" id="favoriteMenuItem" name="favoriteMenuItem" ng-model="signupCtrl.favoriteMenuItem" ng-required="signupCtrl.signupFormSubmitted && signupCtrl.signupForm.favoriteMenuItem.$error.required" ng-blur="signupCtrl.checkMenuItem()">
-            <span ng-show="signupCtrl.invalidMenuItem">No such menu number exists.</span>
+            <input type="text" id="favoriteMenuItem" name="favoriteMenuItem" ng-model="signupCtrl.favoriteMenuItem" ng-required="signupCtrl.signupFormSubmitted && signupCtrl.signupForm.favoriteMenuItem.$error.required">
             <span ng-show="signupCtrl.signupFormSubmitted && signupCtrl.signupForm.favoriteMenuItem.$error.required">Favorite Menu Item is required.</span>
+            <span ng-show="signupCtrl.invalidMenuItem">No such menu number exists.</span>
         </div>
         <button type="submit">Submit</button>
     </form>

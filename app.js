@@ -22,6 +22,23 @@
     }
 
     angular.module('RestaurantApp')
+        .controller('MainController', MainController);
+
+    MainController.$inject = ['$location'];
+
+    function MainController($location) {
+        var mainCtrl = this;
+
+        mainCtrl.goToSignUp = function() {
+            $location.path('/signup');
+        };
+
+        mainCtrl.goToMyInfo = function() {
+            $location.path('/myinfo');
+        };
+    }
+
+    angular.module('RestaurantApp')
         .controller('SignUpController', SignUpController);
 
     SignUpController.$inject = ['SignUpService', '$location'];
@@ -32,7 +49,7 @@
 
         signupCtrl.submitForm = function() {
             signupCtrl.signupFormSubmitted = true; // Set form submission state to true
-            if (signupCtrl.signupForm.$valid) { // Fix here
+            if (signupCtrl.signupForm.$valid) {
                 SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
                 signupCtrl.message = "Your information has been saved.";
             }
