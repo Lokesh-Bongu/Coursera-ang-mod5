@@ -22,11 +22,28 @@
     }
 
     angular.module('RestaurantApp')
+        .controller('MainController', MainController);
+
+    MainController.$inject = ['$location'];
+
+    function MainController($location) {
+        var mainCtrl = this;
+
+        mainCtrl.goToSignUp = function() {
+            $location.path('/signup');
+        };
+
+        mainCtrl.goToMyInfo = function() {
+            $location.path('/myinfo');
+        };
+    }
+
+    angular.module('RestaurantApp')
         .controller('SignUpController', SignUpController);
 
-    SignUpController.$inject = ['SignUpService', '$location', '$timeout']; // Inject $timeout for delayed validation
+    SignUpController.$inject = ['SignUpService', '$location'];
 
-    function SignUpController(SignUpService, $location, $timeout) {
+    function SignUpController(SignUpService, $location) {
         var signupCtrl = this;
         signupCtrl.signupFormSubmitted = false; // Initialize form submission state
 
@@ -39,17 +56,10 @@
         };
 
         signupCtrl.checkMenuItem = function() {
-            if (!signupCtrl.favoriteMenuItem) return; // Skip validation if input is empty
-
             SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
                 .then(function(response) {
                     signupCtrl.invalidMenuItem = response === null;
                 });
-        };
-
-        // Delayed validation on blur event to provide instant feedback to the user
-        signupCtrl.delayedValidation = function() {
-            $timeout(signupCtrl.checkMenuItem, 500); // Adjust delay time as needed
         };
     }
 
@@ -79,6 +89,7 @@
     function SignUpService($http, $q) {
         var service = this;
         var userInfo;
+        var favoriteMenuItem;
 
         service.saveUserData = function(firstName, lastName, email, phone, favoriteMenuItemData) {
             userInfo = {
@@ -87,11 +98,10 @@
                 email: email,
                 phone: phone
             };
+            favoriteMenuItem = favoriteMenuItemData;
         };
 
         service.checkMenuItem = function(menuItem) {
-            if (!menuItem) return $q.resolve(null); // Resolve immediately if input is empty
-
             return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json')
                 .then(function(response) {
                     var menuItems = response.data;
@@ -99,23 +109,25 @@
                     for (var categoryKey in menuItems) {
                         var category = menuItems[categoryKey];
                         for (var i = 0; i < category.menu_items.length; i++) {
-                            if (category.menu_items[i].short_name === menuItem) {
+                            if (category.menu_items[i].name === menuItem) {
                                 menuItemExists = true;
                                 break;
                             }
                         }
-                        if (menuItemExists) break;
+                        if (menuItemExists) {
+                            break;
+                        }
                     }
                     return menuItemExists ? menuItem : null;
-                })
-                .catch(function(error) {
-                    console.error('Error checking menu item:', error);
-                    return null;
                 });
         };
 
         service.getUserInfo = function() {
             return userInfo;
+        };
+
+        service.getFavoriteMenuItem = function() {
+            return favoriteMenuItem;
         };
 
         service.getFavoriteMenuItemWithDetails = function() {
@@ -137,7 +149,9 @@
                                     break;
                                 }
                             }
-                            if (categoryShortName && menuItemShortName) break;
+                            if (categoryShortName && menuItemShortName) {
+                                break;
+                            }
                         }
 
                         var imageUrl = 'images/menu/' + categoryShortName + '/' + menuItemShortName + '.jpg';
