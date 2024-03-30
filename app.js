@@ -68,15 +68,21 @@
         var myInfoCtrl = this;
 
         myInfoCtrl.userInfo = SignUpService.getUserInfo();
-        myInfoCtrl.favoriteMenuItem = SignUpService.getFavoriteMenuItem();
+
+        SignUpService.getFavoriteMenuItemWithDetails().then(function(favoriteMenuItemDetails) {
+            myInfoCtrl.favoriteMenuItem = favoriteMenuItemDetails;
+        }).catch(function(error) {
+            console.error('Error fetching favorite menu item:', error);
+            myInfoCtrl.favoriteMenuItem = null;
+        });
     }
 
     angular.module('RestaurantApp')
         .service('SignUpService', SignUpService);
 
-    SignUpService.$inject = ['$http'];
+    SignUpService.$inject = ['$http', '$q']; // Inject $q for promises
 
-    function SignUpService($http) {
+    function SignUpService($http, $q) {
         var service = this;
         var userInfo;
         var favoriteMenuItem;
@@ -95,14 +101,11 @@
             return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json')
                 .then(function(response) {
                     var menuItems = response.data;
-                    console.log("menuItems",menuItems)
                     var menuItemExists = false;
                     for (var categoryKey in menuItems) {
                         var category = menuItems[categoryKey];
                         for (var i = 0; i < category.menu_items.length; i++) {
                             if (category.menu_items[i].name === menuItem) {
-                                console.log("category_sn",category.category.short_name)
-                                console.log("menuItems_sn",category.menu_items[i].short_name)
                                 menuItemExists = true;
                                 break;
                             }
@@ -120,10 +123,42 @@
         };
 
         service.getFavoriteMenuItem = function() {
-            
-            console.log("oooooo",favoriteMenuItem)
             return favoriteMenuItem;
+        };
 
+        service.getFavoriteMenuItemWithDetails = function() {
+            return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json')
+                .then(function(response) {
+                    var menuItems = response.data;
+                    var favoriteMenuItemData = service.getFavoriteMenuItem();
+
+                    if (favoriteMenuItemData) {
+                        var categoryShortName, menuItemShortName;
+
+                        for (var categoryKey in menuItems) {
+                            var category = menuItems[categoryKey];
+                            for (var i = 0; i < category.menu_items.length; i++) {
+                                if (category.menu_items[i].name === favoriteMenuItemData) {
+                                    categoryShortName = category.category.short_name;
+                                    menuItemShortName = category.menu_items[i].short_name;
+                                    break;
+                                }
+                            }
+                            if (categoryShortName && menuItemShortName) {
+                                break;
+                            }
+                        }
+
+                        var imageUrl = 'images/menu/' + categoryShortName + '/' + menuItemShortName + '.png';
+
+                        return {
+                            name: favoriteMenuItemData,
+                            imageUrl: imageUrl
+                        };
+                    } else {
+                        return null;
+                    }
+                });
         };
     }
 })();

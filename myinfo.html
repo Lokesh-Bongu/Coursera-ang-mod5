@@ -12,7 +12,16 @@
     <div>
         <strong>Phone:</strong> {{ myInfoCtrl.userInfo.phone }}
     </div>
-    <div>
-        <strong>Favorite Menu Item:</strong> {{ myInfoCtrl.favoriteMenuItem }}
+    <div ng-if="myInfoCtrl.favoriteMenuItem">
+        <strong>Favorite Menu Item:</strong>
+        <br>
+        <div>
+            <span>{{ myInfoCtrl.favoriteMenuItem.name }}</span>
+            <br>
+            <img ng-src="{{ myInfoCtrl.favoriteMenuItem.imageUrl }}" alt="{{ myInfoCtrl.favoriteMenuItem.name }}" style="max-width: 200px; max-height: 200px;">
+        </div>
+    </div>
+    <div ng-if="!myInfoCtrl.favoriteMenuItem">
+        <strong>Favorite Menu Item:</strong> Not Available
     </div>
 </div>
