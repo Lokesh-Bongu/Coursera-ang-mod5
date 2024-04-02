@@ -57,6 +57,7 @@
                     })
                     .catch(function(error) {
                         console.error('Error saving user data:', error);
+                        signupCtrl.message = error.message || 'An error occurred while saving your information.';
                     });
             } else {
                 signupCtrl.message = "Please fill out all fields correctly.";
@@ -64,9 +65,20 @@
         };
 
         signupCtrl.checkMenuItem = function() {
+            if (!signupCtrl.favoriteMenuItem) return;
+            
             SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
                 .then(function(response) {
                     signupCtrl.invalidMenuItem = response === null;
+                    if (signupCtrl.invalidMenuItem) {
+                        signupCtrl.message = 'Menu item does not exist.';
+                    } else {
+                        signupCtrl.message = '';
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Error checking menu item:', error);
+                    signupCtrl.message = 'An error occurred while checking the menu item.';
                 });
         };
     }
@@ -104,6 +116,12 @@
 
             // Simulate saving data to server
             setTimeout(function() {
+                // Validate phone number format
+                if (!isValidPhoneNumber(phone)) {
+                    deferred.reject({ message: 'Invalid phone number format.' });
+                    return;
+                }
+
                 userInfo = {
                     firstName: firstName,
                     lastName: lastName,
@@ -183,5 +201,11 @@
                     }
                 });
         };
+
+        function isValidPhoneNumber(phone) {
+            // Phone number validation logic (customize as needed)
+            var phoneRegex = /^\d{10}$/; // Assuming 10-digit phone number
+            return phoneRegex.test(phone);
+        }
     }
 })();
