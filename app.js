@@ -136,7 +136,7 @@
             return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json')
                 .then(function(response) {
                     var menuItems = response.data;
-                    var categoryShortName, menuItemShortName, menuItemDescription;
+                    var categoryShortName, menuItemShortName, menuItemDescription,favoriteMenu;
 
                     for (var categoryKey in menuItems) {
                         var category = menuItems[categoryKey];
