@@ -45,38 +45,30 @@
 
     function SignUpController(SignUpService, $location) {
         var signupCtrl = this;
-        signupCtrl.signupFormSubmitted = false; // Initialize form submission state
-        signupCtrl.validationMessage = '';
+        signupCtrl.signupFormSubmitted = false;
+        signupCtrl.validatedMessage = '';
 
         signupCtrl.submitForm = function() {
-            signupCtrl.signupFormSubmitted = true; // Set form submission state to true
-
-            // Validate first name, last name, email, phone, and favorite menu item
+            signupCtrl.signupFormSubmitted = true;
             if (signupCtrl.signupForm.$valid) {
-                if (!isValidEmail(signupCtrl.email)) {
-                    signupCtrl.validationMessage = 'Invalid email format.';
-                    return;
-                }
-
-                SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
+                SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem)
                     .then(function(response) {
-                        if (response === null) {
-                            signupCtrl.validationMessage = 'No such menu number exists.';
-                        } else {
-                            SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
-                            signupCtrl.message = "Your information has been saved.";
-                        }
+                        signupCtrl.validatedMessage = "Your information has been saved.";
+                    })
+                    .catch(function(error) {
+                        console.error('Error saving user data:', error);
                     });
             } else {
-                signupCtrl.validationMessage = 'Please fill out all required fields.';
+                signupCtrl.validatedMessage = "Please fill out all required fields correctly.";
             }
         };
 
-        // Function to validate email format
-        function isValidEmail(email) {
-            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
-        }
+        signupCtrl.checkMenuItem = function() {
+            SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
+                .then(function(response) {
+                    signupCtrl.invalidMenuItem = response === null;
+                });
+        };
     }
 
     angular.module('RestaurantApp')
@@ -100,7 +92,7 @@
     angular.module('RestaurantApp')
         .service('SignUpService', SignUpService);
 
-    SignUpService.$inject = ['$http', '$q']; // Inject $q for promises
+    SignUpService.$inject = ['$http', '$q'];
 
     function SignUpService($http, $q) {
         var service = this;
@@ -108,13 +100,20 @@
         var favoriteMenuItem;
 
         service.saveUserData = function(firstName, lastName, email, phone, favoriteMenuItemData) {
-            userInfo = {
-                firstName: firstName,
-                lastName: lastName,
-                email: email,
-                phone: phone
-            };
-            favoriteMenuItem = favoriteMenuItemData;
+            var deferred = $q.defer();
+
+            setTimeout(function() {
+                userInfo = {
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email,
+                    phone: phone
+                };
+                favoriteMenuItem = favoriteMenuItemData;
+                deferred.resolve();
+            }, 1000);
+
+            return deferred.promise;
         };
 
         service.checkMenuItem = function(menuItem) {
@@ -162,7 +161,7 @@
                                 if (category.menu_items[i].short_name === favoriteMenuItemData) {
                                     categoryShortName = category.category.short_name;
                                     menuItemShortName = category.menu_items[i].short_name;
-                                    menuItemDescription = category.menu_items[i].description;
+                                   menuItemDescription = category.menu_items[i].description;
                                     break;
                                 }
                             }
@@ -170,12 +169,12 @@
                                 break;
                             }
                         }
+
                         var imageUrl = 'images/menu/' + categoryShortName + '/' + menuItemShortName + '.jpg';
 
                         return {
                             name: favoriteMenuItemData,
-                            imageUrl: imageUrl,
-                            description: menuItemDescription
+                            imageUrl: imageUrl + menuItemDescription
                         };
                     } else {
                         return null;
