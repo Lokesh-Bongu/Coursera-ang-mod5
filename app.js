@@ -45,21 +45,22 @@
 
     function SignUpController(SignUpService, $location) {
         var signupCtrl = this;
-        signupCtrl.signupFormSubmitted = false; 
+        signupCtrl.signupFormSubmitted = false; // Initialize form submission state
 
         signupCtrl.submitForm = function() {
-            signupCtrl.signupFormSubmitted = true; 
+            signupCtrl.signupFormSubmitted = true; // Set form submission state to true
             if (signupCtrl.signupForm.$valid) {
-                SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
-                signupCtrl.message = "Your information has been saved.";
+                SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
+                    .then(function(response) {
+                        if (response === null) {
+                            signupCtrl.invalidMenuItem = true;
+                            signupCtrl.message = "Invalid favorite menu item. Please select a valid menu item.";
+                        } else {
+                            SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
+                            signupCtrl.message = "Your information has been saved.";
+                        }
+                    });
             }
-        };
-
-        signupCtrl.checkMenuItem = function() {
-            SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
-                .then(function(response) {
-                    signupCtrl.invalidMenuItem = response === null;
-                });
         };
     }
 
@@ -84,7 +85,7 @@
     angular.module('RestaurantApp')
         .service('SignUpService', SignUpService);
 
-    SignUpService.$inject = ['$http', '$q'];
+    SignUpService.$inject = ['$http', '$q']; // Inject $q for promises
 
     function SignUpService($http, $q) {
         var service = this;
@@ -126,23 +127,23 @@
             return userInfo;
         };
 
+        service.getFavoriteMenuItem = function() {
+            return favoriteMenuItem;
+        };
+
         service.getFavoriteMenuItemWithDetails = function() {
-            var favoriteMenuItemData = service.getFavoriteMenuItem();
-
-            if (!favoriteMenuItemData) {
-                return $q.reject('Favorite menu item is not defined');
-            }
-
             return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json')
                 .then(function(response) {
                     var menuItems = response.data;
-                    var categoryShortName, menuItemShortName, menuItemDescription,favoriteMenu;
-
+                    var favoriteMenuItemData = service.getFavoriteMenuItem();
+                    if (!favoriteMenuItemData) {
+                        return null;
+                    }
+                    var categoryShortName, menuItemShortName, menuItemDescription;
                     for (var categoryKey in menuItems) {
                         var category = menuItems[categoryKey];
                         for (var i = 0; i < category.menu_items.length; i++) {
                             if (category.menu_items[i].short_name === favoriteMenuItemData) {
-                                favoriteMenu = category.menu_items[i].name
                                 categoryShortName = category.category.short_name;
                                 menuItemShortName = category.menu_items[i].short_name;
                                 menuItemDescription = category.menu_items[i].description;
@@ -153,23 +154,17 @@
                             break;
                         }
                     }
-
                     var imageUrl = 'images/menu/' + categoryShortName + '/' + menuItemShortName + '.jpg';
-
                     return {
-                        name: favoriteMenu,
+                        name: favoriteMenuItemData,
                         imageUrl: imageUrl,
                         description: menuItemDescription
                     };
                 })
                 .catch(function(error) {
                     console.error('Error fetching favorite menu item:', error);
-                    return $q.reject('Error fetching favorite menu item');
+                    return $q.reject(error);
                 });
-        };
-
-        service.getFavoriteMenuItem = function() {
-            return favoriteMenuItem;
         };
     }
 })();
