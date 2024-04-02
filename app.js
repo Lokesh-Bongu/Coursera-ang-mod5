@@ -45,21 +45,34 @@
 
     function SignUpController(SignUpService, $location) {
         var signupCtrl = this;
-        signupCtrl.signupFormSubmitted = false; // Initialize form submission state
+        signupCtrl.signupFormSubmitted = false;
 
         signupCtrl.submitForm = function() {
-            signupCtrl.signupFormSubmitted = true; // Set form submission state to true
+            signupCtrl.signupFormSubmitted = true;
             if (signupCtrl.signupForm.$valid) {
-                SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
-                signupCtrl.message = "Your information has been saved.";
+                SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem)
+                    .then(function(response) {
+                        signupCtrl.message = "Your information has been saved.";
+                    })
+                    .catch(function(error) {
+                        console.error('Error saving user data:', error);
+                    });
             }
         };
 
         signupCtrl.checkMenuItem = function() {
-            SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
-                .then(function(response) {
-                    signupCtrl.invalidMenuItem = response === null;
-                });
+            if (signupCtrl.favoriteMenuItem) {
+                SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
+                    .then(function(response) {
+                        signupCtrl.invalidMenuItem = response === null;
+                    })
+                    .catch(function(error) {
+                        console.error('Error checking menu item:', error);
+                        signupCtrl.invalidMenuItem = true;
+                    });
+            } else {
+                signupCtrl.invalidMenuItem = false;
+            }
         };
     }
 
@@ -84,7 +97,7 @@
     angular.module('RestaurantApp')
         .service('SignUpService', SignUpService);
 
-    SignUpService.$inject = ['$http', '$q']; // Inject $q for promises
+    SignUpService.$inject = ['$http', '$q'];
 
     function SignUpService($http, $q) {
         var service = this;
@@ -92,13 +105,21 @@
         var favoriteMenuItem;
 
         service.saveUserData = function(firstName, lastName, email, phone, favoriteMenuItemData) {
-            userInfo = {
-                firstName: firstName,
-                lastName: lastName,
-                email: email,
-                phone: phone
-            };
-            favoriteMenuItem = favoriteMenuItemData;
+            var deferred = $q.defer();
+
+            // Simulate saving data to server
+            setTimeout(function() {
+                userInfo = {
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email,
+                    phone: phone
+                };
+                favoriteMenuItem = favoriteMenuItemData;
+                deferred.resolve();
+            }, 1000);
+
+            return deferred.promise;
         };
 
         service.checkMenuItem = function(menuItem) {
@@ -133,7 +154,7 @@
                     var favoriteMenuItemData = service.getFavoriteMenuItem();
 
                     if (favoriteMenuItemData) {
-                        var categoryShortName, menuItemShortName;
+                        var categoryShortName, menuItemShortName, menuItemDescription;
 
                         for (var categoryKey in menuItems) {
                             var category = menuItems[categoryKey];
@@ -141,6 +162,7 @@
                                 if (category.menu_items[i].short_name === favoriteMenuItemData) {
                                     categoryShortName = category.category.short_name;
                                     menuItemShortName = category.menu_items[i].short_name;
+                                    menuItemDescription = category.menu_items[i].description;
                                     break;
                                 }
                             }
@@ -153,7 +175,8 @@
 
                         return {
                             name: favoriteMenuItemData,
-                            imageUrl: imageUrl
+                            imageUrl: imageUrl,
+                            description: menuItemDescription
                         };
                     } else {
                         return null;
