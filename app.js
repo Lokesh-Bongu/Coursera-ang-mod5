@@ -46,33 +46,37 @@
     function SignUpController(SignUpService, $location) {
         var signupCtrl = this;
         signupCtrl.signupFormSubmitted = false; // Initialize form submission state
-        signupCtrl.invalidMenuItem = false; // Initialize invalid menu item state
+        signupCtrl.validationMessage = '';
 
         signupCtrl.submitForm = function() {
             signupCtrl.signupFormSubmitted = true; // Set form submission state to true
 
-            // Check if the form is valid
-            if (signupCtrl.signupForm.$valid && !signupCtrl.invalidMenuItem) {
-                SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem)
+            // Validate first name, last name, email, phone, and favorite menu item
+            if (signupCtrl.signupForm.$valid) {
+                if (!isValidEmail(signupCtrl.email)) {
+                    signupCtrl.validationMessage = 'Invalid email format.';
+                    return;
+                }
+
+                SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
                     .then(function(response) {
-                        signupCtrl.message = "Your information has been saved.";
-                    })
-                    .catch(function(error) {
-                        console.error('Error saving user data:', error);
+                        if (response === null) {
+                            signupCtrl.validationMessage = 'No such menu number exists.';
+                        } else {
+                            SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
+                            signupCtrl.message = "Your information has been saved.";
+                        }
                     });
+            } else {
+                signupCtrl.validationMessage = 'Please fill out all required fields.';
             }
         };
 
-        signupCtrl.checkMenuItem = function() {
-            if (signupCtrl.favoriteMenuItem) {
-                SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
-                    .then(function(response) {
-                        signupCtrl.invalidMenuItem = response === null;
-                    });
-            } else {
-                signupCtrl.invalidMenuItem = false; // Reset invalid menu item state if favoriteMenuItem is empty
-            }
-        };
+        // Function to validate email format
+        function isValidEmail(email) {
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
     }
 
     angular.module('RestaurantApp')
@@ -111,8 +115,6 @@
                 phone: phone
             };
             favoriteMenuItem = favoriteMenuItemData;
-            // Simulate saving data to server
-            return $q.resolve();
         };
 
         service.checkMenuItem = function(menuItem) {
@@ -123,7 +125,7 @@
                     for (var categoryKey in menuItems) {
                         var category = menuItems[categoryKey];
                         for (var i = 0; i < category.menu_items.length; i++) {
-                            if (category.menu_items[i].short_name === menuItem) {
+                            if (category.menu_items[i].name === menuItem) {
                                 menuItemExists = true;
                                 break;
                             }
@@ -140,19 +142,24 @@
             return userInfo;
         };
 
+        service.getFavoriteMenuItem = function() {
+            return favoriteMenuItem;
+        };
+
         service.getFavoriteMenuItemWithDetails = function() {
             return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json')
                 .then(function(response) {
-                    var menuItems = response.data;
                     var menuItemDescription;
+                    var menuItems = response.data;
+                    var favoriteMenuItemData = service.getFavoriteMenuItem();
 
-                    if (favoriteMenuItem) {
+                    if (favoriteMenuItemData) {
                         var categoryShortName, menuItemShortName;
 
                         for (var categoryKey in menuItems) {
                             var category = menuItems[categoryKey];
                             for (var i = 0; i < category.menu_items.length; i++) {
-                                if (category.menu_items[i].short_name === favoriteMenuItem) {
+                                if (category.menu_items[i].short_name === favoriteMenuItemData) {
                                     categoryShortName = category.category.short_name;
                                     menuItemShortName = category.menu_items[i].short_name;
                                     menuItemDescription = category.menu_items[i].description;
@@ -163,11 +170,10 @@
                                 break;
                             }
                         }
-
                         var imageUrl = 'images/menu/' + categoryShortName + '/' + menuItemShortName + '.jpg';
 
                         return {
-                            name: favoriteMenuItem,
+                            name: favoriteMenuItemData,
                             imageUrl: imageUrl,
                             description: menuItemDescription
                         };
