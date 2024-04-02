@@ -64,10 +64,19 @@
         };
 
         signupCtrl.checkMenuItem = function() {
-            SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
-                .then(function(response) {
-                    signupCtrl.invalidMenuItem = response === null;
-                });
+            if (signupCtrl.favoriteMenuItem) {
+                SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
+                    .then(function(response) {
+                        signupCtrl.invalidMenuItem = response === null;
+                        if (signupCtrl.invalidMenuItem) {
+                            signupCtrl.validatedMessage = "Menu number exists.";
+                        } else {
+                            signupCtrl.validatedMessage = "No such menu number exists.";
+                        }
+                    });
+            } else {
+                signupCtrl.validatedMessage = "Please provide a menu number.";
+            }
         };
     }
 
@@ -100,20 +109,13 @@
         var favoriteMenuItem;
 
         service.saveUserData = function(firstName, lastName, email, phone, favoriteMenuItemData) {
-            var deferred = $q.defer();
-
-            setTimeout(function() {
-                userInfo = {
-                    firstName: firstName,
-                    lastName: lastName,
-                    email: email,
-                    phone: phone
-                };
-                favoriteMenuItem = favoriteMenuItemData;
-                deferred.resolve();
-            }, 1000);
-
-            return deferred.promise;
+            userInfo = {
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                phone: phone
+            };
+            favoriteMenuItem = favoriteMenuItemData;
         };
 
         service.checkMenuItem = function(menuItem) {
@@ -124,7 +126,7 @@
                     for (var categoryKey in menuItems) {
                         var category = menuItems[categoryKey];
                         for (var i = 0; i < category.menu_items.length; i++) {
-                            if (category.menu_items[i].name === menuItem) {
+                            if (category.menu_items[i].short_name === menuItem) {
                                 menuItemExists = true;
                                 break;
                             }
@@ -161,7 +163,7 @@
                                 if (category.menu_items[i].short_name === favoriteMenuItemData) {
                                     categoryShortName = category.category.short_name;
                                     menuItemShortName = category.menu_items[i].short_name;
-                                   menuItemDescription = category.menu_items[i].description;
+                                    menuItemDescription = category.menu_items[i].description;
                                     break;
                                 }
                             }
@@ -174,7 +176,8 @@
 
                         return {
                             name: favoriteMenuItemData,
-                            imageUrl: imageUrl + menuItemDescription
+                            imageUrl: imageUrl,
+                            description: menuItemDescription
                         };
                     } else {
                         return null;
