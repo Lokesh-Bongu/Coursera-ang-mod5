@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Restaurant App</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/public.css">
+    <link rel="stylesheet" href="css/restaurant.css">
     <!-- Add your CSS links here -->
 </head>
 <body>
@@ -13,9 +16,13 @@
         <button ng-click="mainCtrl.goToSignUp()">Sign Up</button>
         <div ng-view></div>
     </div>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-route.min.js"></script>
+    
+    <script src="lib/angular.min.js"></script>
+    <script src="lib/angular-ui-router.min.js"></script>
+    <script src="lib/bootstrap.min.js"></script>
+    <script src="lib/jquery-2.1.4.min.js"></script>
     <script src="app.js"></script>
+
     <!-- Add your JavaScript files here -->
 </body>
 </html>
