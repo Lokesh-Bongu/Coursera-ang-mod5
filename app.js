@@ -46,6 +46,7 @@
     function SignUpController(SignUpService, $location) {
         var signupCtrl = this;
         signupCtrl.signupFormSubmitted = false; // Initialize form submission state
+        signupCtrl.invalidMenuItem = false; // Initialize invalid menu item flag
 
         signupCtrl.submitForm = function() {
             signupCtrl.signupFormSubmitted = true; // Set form submission state to true
@@ -60,6 +61,17 @@
                             signupCtrl.message = "Your information has been saved.";
                         }
                     });
+            }
+        };
+
+        signupCtrl.checkMenuItem = function() {
+            if (signupCtrl.favoriteMenuItem) {
+                SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
+                    .then(function(response) {
+                        signupCtrl.invalidMenuItem = response === null;
+                    });
+            } else {
+                signupCtrl.invalidMenuItem = false;
             }
         };
     }
@@ -134,36 +146,38 @@
         service.getFavoriteMenuItemWithDetails = function() {
             return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json')
                 .then(function(response) {
+                    var menuItemDescription;
                     var menuItems = response.data;
                     var favoriteMenuItemData = service.getFavoriteMenuItem();
-                    if (!favoriteMenuItemData) {
-                        return null;
-                    }
-                    var categoryShortName, menuItemShortName, menuItemDescription;
-                    for (var categoryKey in menuItems) {
-                        var category = menuItems[categoryKey];
-                        for (var i = 0; i < category.menu_items.length; i++) {
-                            if (category.menu_items[i].short_name === favoriteMenuItemData) {
-                                categoryShortName = category.category.short_name;
-                                menuItemShortName = category.menu_items[i].short_name;
-                                menuItemDescription = category.menu_items[i].description;
+
+                    if (favoriteMenuItemData) {
+                        var categoryShortName, menuItemShortName;
+
+                        for (var categoryKey in menuItems) {
+                            var category = menuItems[categoryKey];
+                            for (var i = 0; i < category.menu_items.length; i++) {
+                                if (category.menu_items[i].short_name === favoriteMenuItemData) {
+                                    categoryShortName = category.category.short_name;
+                                    menuItemShortName = category.menu_items[i].short_name;
+                                    menuItemDescription = category.menu_items[i].description;
+                                    break;
+                                }
+                            }
+                            if (categoryShortName && menuItemShortName) {
                                 break;
                             }
                         }
-                        if (categoryShortName && menuItemShortName) {
-                            break;
-                        }
+
+                        var imageUrl = 'images/menu/' + categoryShortName + '/' + menuItemShortName + '.jpg';
+
+                        return {
+                            name: favoriteMenuItemData,
+                            imageUrl: imageUrl,
+                            description: menuItemDescription
+                        };
+                    } else {
+                        return null;
                     }
-                    var imageUrl = 'images/menu/' + categoryShortName + '/' + menuItemShortName + '.jpg';
-                    return {
-                        name: favoriteMenuItemData,
-                        imageUrl: imageUrl,
-                        description: menuItemDescription
-                    };
-                })
-                .catch(function(error) {
-                    console.error('Error fetching favorite menu item:', error);
-                    return $q.reject(error);
                 });
         };
     }
