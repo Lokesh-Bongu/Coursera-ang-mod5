@@ -53,17 +53,20 @@
             if (signupCtrl.signupForm.$valid) {
                 SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
                     .then(function(response) {
-                        if (response === null) {
-                            signupCtrl.invalidMenuItem = true;
-                            signupCtrl.message = "Invalid favorite menu item. Please select a valid menu item.";
+                        if (response !== null) {
+                            signupCtrl.invalidMenuItem = false;
+                            SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem)
+                                .then(function() {
+                                    signupCtrl.message = "Your information has been saved.";
+                                });
                         } else {
-                            SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
-                            signupCtrl.message = "Your information has been saved.";
+                            signupCtrl.invalidMenuItem = true;
+                            signupCtrl.message = "No such menu number exists.";
                         }
                     });
             }
         };
-
+        
         signupCtrl.checkMenuItem = function() {
             if (signupCtrl.favoriteMenuItem) {
                 SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
