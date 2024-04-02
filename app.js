@@ -63,10 +63,15 @@
                             signupCtrl.invalidMenuItem = true;
                             signupCtrl.message = "No such menu number exists.";
                         }
+                    })
+                    .catch(function(error) {
+                        signupCtrl.invalidMenuItem = true;
+                        signupCtrl.message = "Error checking menu item: " + error;
                     });
             }
         };
         
+
         signupCtrl.checkMenuItem = function() {
             if (signupCtrl.favoriteMenuItem) {
                 SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
