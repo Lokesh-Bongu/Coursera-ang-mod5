@@ -51,22 +51,23 @@
         signupCtrl.submitForm = function() {
             signupCtrl.signupFormSubmitted = true; // Set form submission state to true
             if (signupCtrl.signupForm.$valid) {
-                SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
+                SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem)
                     .then(function(response) {
-                        if (response) {
-                            SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
-                            signupCtrl.message = "Your information has been saved.";
-                        } else {
-                            signupCtrl.message = "The provided menu item does not exist.";
-                        }
+                        signupCtrl.message = "Your information has been saved.";
                     })
                     .catch(function(error) {
-                        console.error('Error checking menu item:', error);
-                        signupCtrl.message = "An error occurred while checking the menu item.";
+                        console.error('Error saving user data:', error);
                     });
             } else {
-                signupCtrl.message = "Please fill out all required fields correctly.";
+                signupCtrl.message = "Please fill out all fields correctly.";
             }
+        };
+
+        signupCtrl.checkMenuItem = function() {
+            SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
+                .then(function(response) {
+                    signupCtrl.invalidMenuItem = response === null;
+                });
         };
     }
 
@@ -91,7 +92,7 @@
     angular.module('RestaurantApp')
         .service('SignUpService', SignUpService);
 
-    SignUpService.$inject = ['$http', '$q'];
+    SignUpService.$inject = ['$http', '$q']; // Inject $q for promises
 
     function SignUpService($http, $q) {
         var service = this;
@@ -99,13 +100,21 @@
         var favoriteMenuItem;
 
         service.saveUserData = function(firstName, lastName, email, phone, favoriteMenuItemData) {
-            userInfo = {
-                firstName: firstName,
-                lastName: lastName,
-                email: email,
-                phone: phone
-            };
-            favoriteMenuItem = favoriteMenuItemData;
+            var deferred = $q.defer();
+
+            // Simulate saving data to server
+            setTimeout(function() {
+                userInfo = {
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email,
+                    phone: phone
+                };
+                favoriteMenuItem = favoriteMenuItemData;
+                deferred.resolve();
+            }, 1000);
+
+            return deferred.promise;
         };
 
         service.checkMenuItem = function(menuItem) {
@@ -125,7 +134,7 @@
                             break;
                         }
                     }
-                    return menuItemExists;
+                    return menuItemExists ? menuItem : null;
                 });
         };
 
@@ -133,12 +142,16 @@
             return userInfo;
         };
 
+        service.getFavoriteMenuItem = function() {
+            return favoriteMenuItem;
+        };
+
         service.getFavoriteMenuItemWithDetails = function() {
             return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json')
                 .then(function(response) {
-                    var menuItems = response.data;
                     var menuItemDescription;
-                    var favoriteMenuItemData = favoriteMenuItem;
+                    var menuItems = response.data;
+                    var favoriteMenuItemData = service.getFavoriteMenuItem();
 
                     if (favoriteMenuItemData) {
                         var categoryShortName, menuItemShortName;
@@ -168,10 +181,6 @@
                     } else {
                         return null;
                     }
-                })
-                .catch(function(error) {
-                    console.error('Error fetching favorite menu item:', error);
-                    return $q.reject('Error fetching favorite menu item');
                 });
         };
     }

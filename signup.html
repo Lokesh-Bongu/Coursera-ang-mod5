@@ -10,6 +10,9 @@
     <div class="form-group">
         <label for="email">Email:</label>
         <input type="email" class="form-control" id="email" name="email" ng-model="signupCtrl.email" required>
+        <div ng-show="signupCtrl.signupForm.email.$error.email && signupCtrl.signupForm.email.$dirty">
+            <span class="text-danger">Invalid email format.</span>
+        </div>
     </div>
     <div class="form-group">
         <label for="phone">Phone:</label>
