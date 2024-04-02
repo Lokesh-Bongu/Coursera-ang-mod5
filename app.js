@@ -1,106 +1,96 @@
-// app.js
-(function() {
-    'use strict';
+angular.module('RestaurantApp')
+    .service('SignUpService', SignUpService);
 
-    angular.module('RestaurantApp', ['ngRoute'])
-        .config(RoutesConfig);
+SignUpService.$inject = ['$http', '$q'];
 
-    RoutesConfig.$inject = ['$routeProvider'];
+function SignUpService($http, $q) {
+    var service = this;
+    var userInfo;
+    var favoriteMenuItem;
 
-    function RoutesConfig($routeProvider) {
-        $routeProvider
-            .when('/signup', {
-                templateUrl: 'signup.html',
-                controller: 'SignUpController as signupCtrl'
+    service.saveUserData = function(firstName, lastName, email, phone, favoriteMenuItemData) {
+        var deferred = $q.defer();
+
+        // Simulate saving data to server
+        setTimeout(function() {
+            userInfo = {
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                phone: phone
+            };
+            favoriteMenuItem = favoriteMenuItemData;
+            deferred.resolve();
+        }, 1000);
+
+        return deferred.promise;
+    };
+
+    service.checkMenuItem = function(menuItem) {
+        return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json')
+            .then(function(response) {
+                var menuItems = response.data;
+                var menuItemExists = false;
+                for (var categoryKey in menuItems) {
+                    var category = menuItems[categoryKey];
+                    for (var i = 0; i < category.menu_items.length; i++) {
+                        if (category.menu_items[i].name === menuItem) {
+                            menuItemExists = true;
+                            break;
+                        }
+                    }
+                    if (menuItemExists) {
+                        break;
+                    }
+                }
+                return menuItemExists ? menuItem : null;
             })
-            .when('/myinfo', {
-                templateUrl: 'myinfo.html',
-                controller: 'MyInfoController as myInfoCtrl'
-            })
-            .otherwise({
-                redirectTo: '/signup'
+            .catch(function(error) {
+                console.error('Error checking menu item:', error);
+                return $q.reject('Error checking menu item');
             });
-    }
+    };
 
-    angular.module('RestaurantApp')
-        .controller('MainController', MainController);
+    service.getUserInfo = function() {
+        return userInfo;
+    };
 
-    MainController.$inject = ['$location'];
+    service.getFavoriteMenuItemWithDetails = function() {
+        if (!favoriteMenuItem) {
+            return $q.reject('Favorite menu item is not defined');
+        }
 
-    function MainController($location) {
-        var mainCtrl = this;
+        return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json')
+            .then(function(response) {
+                var menuItems = response.data;
+                var categoryShortName, menuItemShortName, menuItemDescription;
 
-        mainCtrl.goToSignUp = function() {
-            $location.path('/signup');
-        };
+                for (var categoryKey in menuItems) {
+                    var category = menuItems[categoryKey];
+                    for (var i = 0; i < category.menu_items.length; i++) {
+                        if (category.menu_items[i].short_name === favoriteMenuItem) {
+                            categoryShortName = category.category.short_name;
+                            menuItemShortName = category.menu_items[i].short_name;
+                            menuItemDescription = category.menu_items[i].description;
+                            break;
+                        }
+                    }
+                    if (categoryShortName && menuItemShortName) {
+                        break;
+                    }
+                }
 
-        mainCtrl.goToMyInfo = function() {
-            $location.path('/myinfo');
-        };
-    }
+                var imageUrl = 'images/menu/' + categoryShortName + '/' + menuItemShortName + '.jpg';
 
-    angular.module('RestaurantApp')
-        .controller('SignUpController', SignUpController);
-
-    SignUpController.$inject = ['SignUpService', '$location'];
-
-    function SignUpController(SignUpService, $location) {
-        var signupCtrl = this;
-        signupCtrl.signupFormSubmitted = false;
-
-        signupCtrl.submitForm = function() {
-            signupCtrl.signupFormSubmitted = true;
-            if (signupCtrl.signupForm.$valid) {
-                SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem)
-                    .then(function(response) {
-                        signupCtrl.message = "Your information has been saved.";
-                    })
-                    .catch(function(error) {
-                        console.error('Error saving user data:', error);
-                    });
-            }
-        };
-    }
-
-    angular.module('RestaurantApp')
-        .controller('MyInfoController', MyInfoController);
-
-    MyInfoController.$inject = ['SignUpService'];
-
-    function MyInfoController(SignUpService) {
-        var myInfoCtrl = this;
-
-        myInfoCtrl.userInfo = SignUpService.getUserInfo();
-    }
-
-    angular.module('RestaurantApp')
-        .service('SignUpService', SignUpService);
-
-    SignUpService.$inject = ['$http', '$q'];
-
-    function SignUpService($http, $q) {
-        var service = this;
-        var userInfo;
-
-        service.saveUserData = function(firstName, lastName, email, phone, favoriteMenuItemData) {
-            var deferred = $q.defer();
-
-            // Simulate saving data to server
-            setTimeout(function() {
-                userInfo = {
-                    firstName: firstName,
-                    lastName: lastName,
-                    email: email,
-                    phone: phone
+                return {
+                    name: favoriteMenuItem,
+                    imageUrl: imageUrl,
+                    description: menuItemDescription
                 };
-                deferred.resolve();
-            }, 1000);
-
-            return deferred.promise;
-        };
-
-        service.getUserInfo = function() {
-            return userInfo;
-        };
-    }
-})();
+            })
+            .catch(function(error) {
+                console.error('Error fetching favorite menu item:', error);
+                return $q.reject('Error fetching favorite menu item');
+            });
+    };
+}
