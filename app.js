@@ -1,3 +1,4 @@
+// app.js
 (function() {
     'use strict';
 
@@ -59,21 +60,6 @@
                     });
             }
         };
-
-        signupCtrl.checkMenuItem = function() {
-            if (signupCtrl.favoriteMenuItem) {
-                SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
-                    .then(function(response) {
-                        signupCtrl.invalidMenuItem = response === null;
-                    })
-                    .catch(function(error) {
-                        console.error('Error checking menu item:', error);
-                        signupCtrl.invalidMenuItem = true;
-                    });
-            } else {
-                signupCtrl.invalidMenuItem = false;
-            }
-        };
     }
 
     angular.module('RestaurantApp')
@@ -85,13 +71,6 @@
         var myInfoCtrl = this;
 
         myInfoCtrl.userInfo = SignUpService.getUserInfo();
-
-        SignUpService.getFavoriteMenuItemWithDetails().then(function(favoriteMenuItemDetails) {
-            myInfoCtrl.favoriteMenuItem = favoriteMenuItemDetails;
-        }).catch(function(error) {
-            console.error('Error fetching favorite menu item:', error);
-            myInfoCtrl.favoriteMenuItem = null;
-        });
     }
 
     angular.module('RestaurantApp')
@@ -102,7 +81,6 @@
     function SignUpService($http, $q) {
         var service = this;
         var userInfo;
-        var favoriteMenuItem;
 
         service.saveUserData = function(firstName, lastName, email, phone, favoriteMenuItemData) {
             var deferred = $q.defer();
@@ -115,73 +93,14 @@
                     email: email,
                     phone: phone
                 };
-                favoriteMenuItem = favoriteMenuItemData;
                 deferred.resolve();
             }, 1000);
 
             return deferred.promise;
         };
 
-        service.checkMenuItem = function(menuItem) {
-            return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json')
-                .then(function(response) {
-                    var menuItems = response.data;
-                    var menuItemExists = false;
-                    for (var categoryKey in menuItems) {
-                        var category = menuItems[categoryKey];
-                        for (var i = 0; i < category.menu_items.length; i++) {
-                            if (category.menu_items[i].name === menuItem) {
-                                menuItemExists = true;
-                                break;
-                            }
-                        }
-                        if (menuItemExists) {
-                            break;
-                        }
-                    }
-                    return menuItemExists ? menuItem : null;
-                });
-        };
-
         service.getUserInfo = function() {
             return userInfo;
-        };
-
-        service.getFavoriteMenuItemWithDetails = function() {
-            return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json')
-                .then(function(response) {
-                    var menuItems = response.data;
-                    var favoriteMenuItemData = service.getFavoriteMenuItem();
-
-                    if (favoriteMenuItemData) {
-                        var categoryShortName, menuItemShortName, menuItemDescription;
-
-                        for (var categoryKey in menuItems) {
-                            var category = menuItems[categoryKey];
-                            for (var i = 0; i < category.menu_items.length; i++) {
-                                if (category.menu_items[i].short_name === favoriteMenuItemData) {
-                                    categoryShortName = category.category.short_name;
-                                    menuItemShortName = category.menu_items[i].short_name;
-                                    menuItemDescription = category.menu_items[i].description;
-                                    break;
-                                }
-                            }
-                            if (categoryShortName && menuItemShortName) {
-                                break;
-                            }
-                        }
-
-                        var imageUrl = 'images/menu/' + categoryShortName + '/' + menuItemShortName + '.jpg';
-
-                        return {
-                            name: favoriteMenuItemData,
-                            imageUrl: imageUrl,
-                            description: menuItemDescription
-                        };
-                    } else {
-                        return null;
-                    }
-                });
         };
     }
 })();
