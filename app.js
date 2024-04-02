@@ -71,10 +71,10 @@
     function MyInfoController(SignUpService) {
         var myInfoCtrl = this;
 
-        myInfoCtrl.userInfo = SignUpService.getUserInfo();
+        myInfoCtrl.userInfo = SignUpService.getUserInfo() || {};
 
         SignUpService.getFavoriteMenuItemWithDetails().then(function(favoriteMenuItemDetails) {
-            myInfoCtrl.favoriteMenuItem = favoriteMenuItemDetails;
+            myInfoCtrl.favoriteMenuItem = favoriteMenuItemDetails || {};
         }).catch(function(error) {
             console.error('Error fetching favorite menu item:', error);
             myInfoCtrl.favoriteMenuItem = null;
@@ -88,7 +88,7 @@
 
     function SignUpService($http, $q) {
         var service = this;
-        var userInfo;
+        var userInfo = {};
         var favoriteMenuItem;
 
         service.saveUserData = function(firstName, lastName, email, phone, favoriteMenuItemData) {
@@ -133,10 +133,9 @@
         service.getFavoriteMenuItemWithDetails = function() {
             return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json')
                 .then(function(response) {
-                    var menuItemDescription;
                     var menuItems = response.data;
-                    var favoriteMenuItemData = service.getFavoriteMenuItem();
-
+                    var favoriteMenuItemData = service.getFavoriteMenuItem() || '';
+                    var menuItemDescription;
                     if (favoriteMenuItemData) {
                         var categoryShortName, menuItemShortName;
 
@@ -144,9 +143,9 @@
                             var category = menuItems[categoryKey];
                             for (var i = 0; i < category.menu_items.length; i++) {
                                 if (category.menu_items[i].short_name === favoriteMenuItemData) {
-                                    categoryShortName = category.category.short_name;
-                                    menuItemShortName = category.menu_items[i].short_name;
-                                   menuItemDescription = category.menu_items[i].description;
+                                    categoryShortName = category.category.short_name || '';
+                                    menuItemShortName = category.menu_items[i].short_name || '';
+                                    menuItemDescription = category.menu_items[i].description || '';
                                     break;
                                 }
                             }
@@ -154,16 +153,20 @@
                                 break;
                             }
                         }
-             console.log("categoryShortName",categoryShortName,menuItemShortName)
                         var imageUrl = 'images/menu/' + categoryShortName + '/' + menuItemShortName + '.jpg';
 
                         return {
                             name: favoriteMenuItemData,
-                            imageUrl: imageUrl + menuItemDescription
+                            imageUrl: imageUrl,
+                            description: menuItemDescription
                         };
                     } else {
                         return null;
                     }
+                })
+                .catch(function(error) {
+                    console.error('Error fetching favorite menu item:', error);
+                    return $q.reject('Error fetching favorite menu item');
                 });
         };
     }
