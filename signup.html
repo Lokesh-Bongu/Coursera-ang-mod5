@@ -2,40 +2,22 @@
     <div class="form-group">
         <label for="firstName">First Name:</label>
         <input type="text" class="form-control" id="firstName" name="firstName" ng-model="signupCtrl.firstName" required>
-        <div ng-show="signupCtrl.signupForm.firstName.$error.required && signupCtrl.signupForm.firstName.$dirty">
-            <small class="text-danger">First Name is required.</small>
-        </div>
     </div>
     <div class="form-group">
         <label for="lastName">Last Name:</label>
         <input type="text" class="form-control" id="lastName" name="lastName" ng-model="signupCtrl.lastName" required>
-        <div ng-show="signupCtrl.signupForm.lastName.$error.required && signupCtrl.signupForm.lastName.$dirty">
-            <small class="text-danger">Last Name is required.</small>
-        </div>
     </div>
     <div class="form-group">
         <label for="email">Email:</label>
         <input type="email" class="form-control" id="email" name="email" ng-model="signupCtrl.email" required>
-        <div ng-show="signupCtrl.signupForm.email.$error.required && signupCtrl.signupForm.email.$dirty">
-            <small class="text-danger">Email is required.</small>
-        </div>
-        <div ng-show="signupCtrl.signupForm.email.$error.email && signupCtrl.signupForm.email.$dirty">
-            <small class="text-danger">Invalid email format.</small>
-        </div>
     </div>
     <div class="form-group">
         <label for="phone">Phone:</label>
         <input type="tel" class="form-control" id="phone" name="phone" ng-model="signupCtrl.phone" required>
-        <div ng-show="signupCtrl.signupForm.phone.$error.required && signupCtrl.signupForm.phone.$dirty">
-            <small class="text-danger">Phone Number is required.</small>
-        </div>
     </div>
     <div class="form-group">
         <label for="favoriteMenuItem">Favorite Menu Item:</label>
         <input type="text" class="form-control" id="favoriteMenuItem" name="favoriteMenuItem" ng-model="signupCtrl.favoriteMenuItem" required>
-        <div ng-show="signupCtrl.signupForm.favoriteMenuItem.$error.required && signupCtrl.signupForm.favoriteMenuItem.$dirty">
-            <small class="text-danger">Favorite Menu Item is required.</small>
-        </div>
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
     <div>{{ signupCtrl.message }}</div>

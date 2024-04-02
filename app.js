@@ -51,8 +51,19 @@
         signupCtrl.submitForm = function() {
             signupCtrl.signupFormSubmitted = true; // Set form submission state to true
             if (signupCtrl.signupForm.$valid) {
-                SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
-                signupCtrl.message = "Your information has been saved.";
+                SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
+                    .then(function(response) {
+                        if (response) {
+                            SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
+                            signupCtrl.message = "Your information has been saved.";
+                        } else {
+                            signupCtrl.message = "The provided menu item does not exist.";
+                        }
+                    })
+                    .catch(function(error) {
+                        console.error('Error checking menu item:', error);
+                        signupCtrl.message = "An error occurred while checking the menu item.";
+                    });
             } else {
                 signupCtrl.message = "Please fill out all required fields correctly.";
             }
@@ -114,7 +125,7 @@
                             break;
                         }
                     }
-                    return menuItemExists ? menuItem : null;
+                    return menuItemExists;
                 });
         };
 
@@ -122,16 +133,12 @@
             return userInfo;
         };
 
-        service.getFavoriteMenuItem = function() {
-            return favoriteMenuItem;
-        };
-
         service.getFavoriteMenuItemWithDetails = function() {
             return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json')
                 .then(function(response) {
-                    var menuItemDescription;
                     var menuItems = response.data;
-                    var favoriteMenuItemData = service.getFavoriteMenuItem();
+                    var menuItemDescription;
+                    var favoriteMenuItemData = favoriteMenuItem;
 
                     if (favoriteMenuItemData) {
                         var categoryShortName, menuItemShortName;
@@ -155,11 +162,16 @@
 
                         return {
                             name: favoriteMenuItemData,
-                            imageUrl: imageUrl + menuItemDescription
+                            imageUrl: imageUrl,
+                            description: menuItemDescription
                         };
                     } else {
                         return null;
                     }
+                })
+                .catch(function(error) {
+                    console.error('Error fetching favorite menu item:', error);
+                    return $q.reject('Error fetching favorite menu item');
                 });
         };
     }
