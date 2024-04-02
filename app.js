@@ -154,7 +154,7 @@
                                 break;
                             }
                         }
-
+             console.log("categoryShortName",categoryShortName,menuItemShortName)
                         var imageUrl = 'images/menu/' + categoryShortName + '/' + menuItemShortName + '.jpg';
 
                         return {
