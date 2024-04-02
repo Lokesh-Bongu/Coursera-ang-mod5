@@ -55,23 +55,24 @@
                     .then(function(response) {
                         if (response !== null) {
                             signupCtrl.invalidMenuItem = false;
-                            SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem)
-                                .then(function() {
-                                    signupCtrl.message = "Your information has been saved.";
-                                });
+                            return SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
                         } else {
                             signupCtrl.invalidMenuItem = true;
                             signupCtrl.message = "No such menu number exists.";
+                            return Promise.reject(new Error("No such menu number exists."));
                         }
+                    })
+                    .then(function() {
+                        signupCtrl.message = "Your information has been saved.";
                     })
                     .catch(function(error) {
                         signupCtrl.invalidMenuItem = true;
-                        signupCtrl.message = "Error checking menu item: " + error;
+                        console.error('Error saving user data:', error);
+                        signupCtrl.message = "Error saving user data: " + error.message;
                     });
             }
         };
         
-
         signupCtrl.checkMenuItem = function() {
             if (signupCtrl.favoriteMenuItem) {
                 SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
