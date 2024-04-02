@@ -45,44 +45,54 @@
 
     function SignUpController(SignUpService, $location) {
         var signupCtrl = this;
-        signupCtrl.signupFormSubmitted = false; // Initialize form submission state
-        signupCtrl.invalidMenuItem = false; // Initialize invalid menu item flag
+        signupCtrl.message = '';
 
         signupCtrl.submitForm = function() {
-            signupCtrl.signupFormSubmitted = true; // Set form submission state to true
-            if (signupCtrl.signupForm.$valid) {
-                SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
-                    .then(function(response) {
-                        if (response !== null) {
-                            signupCtrl.invalidMenuItem = false;
-                            return SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
-                        } else {
-                            signupCtrl.invalidMenuItem = true;
-                            signupCtrl.message = "No such menu number exists.";
-                            return Promise.reject(new Error("No such menu number exists."));
-                        }
-                    })
-                    .then(function() {
-                        signupCtrl.message = "Your information has been saved.";
-                    })
-                    .catch(function(error) {
-                        signupCtrl.invalidMenuItem = true;
-                        console.error('Error saving user data:', error);
-                        signupCtrl.message = "Error saving user data: " + error.message;
-                    });
+            signupCtrl.message = ''; // Reset message
+
+            // Validate first name
+            if (!signupCtrl.firstName) {
+                signupCtrl.message = "Please enter your first name.";
+                return;
             }
-        };
-        
-        signupCtrl.checkMenuItem = function() {
-            if (signupCtrl.favoriteMenuItem) {
-                SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
-                    .then(function(response) {
-                        signupCtrl.invalidMenuItem = response === null;
-                    });
-            } else {
-                signupCtrl.invalidMenuItem = false;
+
+            // Validate last name
+            if (!signupCtrl.lastName) {
+                signupCtrl.message = "Please enter your last name.";
+                return;
             }
+
+            // Validate email
+            if (!signupCtrl.email) {
+                signupCtrl.message = "Please enter your email address.";
+                return;
+            } else if (!isValidEmail(signupCtrl.email)) {
+                signupCtrl.message = "Please enter a valid email address ending with '@gmail.com'.";
+                return;
+            }
+
+            // Validate phone number
+            if (!signupCtrl.phone) {
+                signupCtrl.message = "Please enter your phone number.";
+                return;
+            }
+
+            // All fields are valid, save user data
+            SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem)
+                .then(function() {
+                    signupCtrl.message = "Your information has been saved.";
+                })
+                .catch(function(error) {
+                    console.error('Error saving user data:', error);
+                    signupCtrl.message = "An error occurred while saving your information.";
+                });
         };
+
+        // Function to validate email format
+        function isValidEmail(email) {
+            var emailRegex = /\b[A-Za-z0-9._%+-]+@gmail\.com\b/;
+            return emailRegex.test(email);
+        }
     }
 
     angular.module('RestaurantApp')
@@ -106,7 +116,7 @@
     angular.module('RestaurantApp')
         .service('SignUpService', SignUpService);
 
-    SignUpService.$inject = ['$http', '$q']; // Inject $q for promises
+    SignUpService.$inject = ['$http', '$q'];
 
     function SignUpService($http, $q) {
         var service = this;
@@ -131,7 +141,7 @@
                     for (var categoryKey in menuItems) {
                         var category = menuItems[categoryKey];
                         for (var i = 0; i < category.menu_items.length; i++) {
-                            if (category.menu_items[i].short_name === menuItem) {
+                            if (category.menu_items[i].name === menuItem) {
                                 menuItemExists = true;
                                 break;
                             }
@@ -181,8 +191,7 @@
 
                         return {
                             name: favoriteMenuItemData,
-                            imageUrl: imageUrl,
-                            description: menuItemDescription
+                            imageUrl: imageUrl + menuItemDescription
                         };
                     } else {
                         return null;
