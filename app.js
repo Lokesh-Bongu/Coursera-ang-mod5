@@ -45,54 +45,34 @@
 
     function SignUpController(SignUpService, $location) {
         var signupCtrl = this;
-        signupCtrl.message = '';
+        signupCtrl.signupFormSubmitted = false; // Initialize form submission state
+        signupCtrl.invalidMenuItem = false; // Initialize invalid menu item state
 
         signupCtrl.submitForm = function() {
-            signupCtrl.message = ''; // Reset message
+            signupCtrl.signupFormSubmitted = true; // Set form submission state to true
 
-            // Validate first name
-            if (!signupCtrl.firstName) {
-                signupCtrl.message = "Please enter your first name.";
-                return;
+            // Check if the form is valid
+            if (signupCtrl.signupForm.$valid && !signupCtrl.invalidMenuItem) {
+                SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem)
+                    .then(function(response) {
+                        signupCtrl.message = "Your information has been saved.";
+                    })
+                    .catch(function(error) {
+                        console.error('Error saving user data:', error);
+                    });
             }
-
-            // Validate last name
-            if (!signupCtrl.lastName) {
-                signupCtrl.message = "Please enter your last name.";
-                return;
-            }
-
-            // Validate email
-            if (!signupCtrl.email) {
-                signupCtrl.message = "Please enter your email address.";
-                return;
-            } else if (!isValidEmail(signupCtrl.email)) {
-                signupCtrl.message = "Please enter a valid email address ending with '@gmail.com'.";
-                return;
-            }
-
-            // Validate phone number
-            if (!signupCtrl.phone) {
-                signupCtrl.message = "Please enter your phone number.";
-                return;
-            }
-
-            // All fields are valid, save user data
-            SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem)
-                .then(function() {
-                    signupCtrl.message = "Your information has been saved.";
-                })
-                .catch(function(error) {
-                    console.error('Error saving user data:', error);
-                    signupCtrl.message = "An error occurred while saving your information.";
-                });
         };
 
-        // Function to validate email format
-        function isValidEmail(email) {
-            var emailRegex = /\b[A-Za-z0-9._%+-]+@gmail\.com\b/;
-            return emailRegex.test(email);
-        }
+        signupCtrl.checkMenuItem = function() {
+            if (signupCtrl.favoriteMenuItem) {
+                SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
+                    .then(function(response) {
+                        signupCtrl.invalidMenuItem = response === null;
+                    });
+            } else {
+                signupCtrl.invalidMenuItem = false; // Reset invalid menu item state if favoriteMenuItem is empty
+            }
+        };
     }
 
     angular.module('RestaurantApp')
@@ -116,7 +96,7 @@
     angular.module('RestaurantApp')
         .service('SignUpService', SignUpService);
 
-    SignUpService.$inject = ['$http', '$q'];
+    SignUpService.$inject = ['$http', '$q']; // Inject $q for promises
 
     function SignUpService($http, $q) {
         var service = this;
@@ -131,6 +111,8 @@
                 phone: phone
             };
             favoriteMenuItem = favoriteMenuItemData;
+            // Simulate saving data to server
+            return $q.resolve();
         };
 
         service.checkMenuItem = function(menuItem) {
@@ -141,7 +123,7 @@
                     for (var categoryKey in menuItems) {
                         var category = menuItems[categoryKey];
                         for (var i = 0; i < category.menu_items.length; i++) {
-                            if (category.menu_items[i].name === menuItem) {
+                            if (category.menu_items[i].short_name === menuItem) {
                                 menuItemExists = true;
                                 break;
                             }
@@ -158,24 +140,19 @@
             return userInfo;
         };
 
-        service.getFavoriteMenuItem = function() {
-            return favoriteMenuItem;
-        };
-
         service.getFavoriteMenuItemWithDetails = function() {
             return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json')
                 .then(function(response) {
-                    var menuItemDescription;
                     var menuItems = response.data;
-                    var favoriteMenuItemData = service.getFavoriteMenuItem();
+                    var menuItemDescription;
 
-                    if (favoriteMenuItemData) {
+                    if (favoriteMenuItem) {
                         var categoryShortName, menuItemShortName;
 
                         for (var categoryKey in menuItems) {
                             var category = menuItems[categoryKey];
                             for (var i = 0; i < category.menu_items.length; i++) {
-                                if (category.menu_items[i].short_name === favoriteMenuItemData) {
+                                if (category.menu_items[i].short_name === favoriteMenuItem) {
                                     categoryShortName = category.category.short_name;
                                     menuItemShortName = category.menu_items[i].short_name;
                                     menuItemDescription = category.menu_items[i].description;
@@ -190,8 +167,9 @@
                         var imageUrl = 'images/menu/' + categoryShortName + '/' + menuItemShortName + '.jpg';
 
                         return {
-                            name: favoriteMenuItemData,
-                            imageUrl: imageUrl + menuItemDescription
+                            name: favoriteMenuItem,
+                            imageUrl: imageUrl,
+                            description: menuItemDescription
                         };
                     } else {
                         return null;

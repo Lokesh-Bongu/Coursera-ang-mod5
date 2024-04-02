@@ -15,7 +15,10 @@
         <label for="phone">Phone:</label>
         <input type="tel" class="form-control" id="phone" name="phone" ng-model="signupCtrl.phone" required>
     </div>
-    <!-- Other form fields -->
+    <div class="form-group">
+        <label for="favoriteMenuItem">Favorite Menu Item:</label>
+        <input type="text" class="form-control" id="favoriteMenuItem" name="favoriteMenuItem" ng-model="signupCtrl.favoriteMenuItem" required>
+    </div>
     <button type="submit" class="btn btn-primary">Submit</button>
     <div>{{ signupCtrl.message }}</div>
 </form>
