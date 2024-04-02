@@ -45,11 +45,11 @@
 
     function SignUpController(SignUpService, $location) {
         var signupCtrl = this;
-        signupCtrl.signupFormSubmitted = false;
+        signupCtrl.signupFormSubmitted = false; // Initialize form submission state
 
         signupCtrl.submitForm = function() {
-            signupCtrl.signupFormSubmitted = true;
-            if (signupCtrl.signupForm && signupCtrl.signupForm.$valid) {
+            signupCtrl.signupFormSubmitted = true; // Set form submission state to true
+            if (signupCtrl.signupForm.$valid) {
                 SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
                 signupCtrl.message = "Your information has been saved.";
             }
@@ -84,7 +84,7 @@
     angular.module('RestaurantApp')
         .service('SignUpService', SignUpService);
 
-    SignUpService.$inject = ['$http', '$q'];
+    SignUpService.$inject = ['$http', '$q']; // Inject $q for promises
 
     function SignUpService($http, $q) {
         var service = this;
@@ -133,7 +133,7 @@
                     var favoriteMenuItemData = service.getFavoriteMenuItem();
 
                     if (favoriteMenuItemData) {
-                        var categoryShortName, menuItemShortName, menuItemDescription;
+                        var categoryShortName, menuItemShortName;
 
                         for (var categoryKey in menuItems) {
                             var category = menuItems[categoryKey];
@@ -141,7 +141,6 @@
                                 if (category.menu_items[i].short_name === favoriteMenuItemData) {
                                     categoryShortName = category.category.short_name;
                                     menuItemShortName = category.menu_items[i].short_name;
-                                    menuItemDescription = category.menu_items[i].description;
                                     break;
                                 }
                             }
@@ -154,8 +153,7 @@
 
                         return {
                             name: favoriteMenuItemData,
-                            imageUrl: imageUrl,
-                            description: menuItemDescription
+                            imageUrl: imageUrl
                         };
                     } else {
                         return null;
