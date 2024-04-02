@@ -57,13 +57,13 @@
                             signupCtrl.invalidMenuItem = true;
                             signupCtrl.message = "No such menu number exists.";
                         } else {
+                            signupCtrl.invalidMenuItem = false;
+                            signupCtrl.message = "Menu number " + signupCtrl.favoriteMenuItem + " exists.";
                             SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
-                            signupCtrl.message = "Your information has been saved.";
                         }
                     });
             }
         };
-
         signupCtrl.checkMenuItem = function() {
             if (signupCtrl.favoriteMenuItem) {
                 SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
