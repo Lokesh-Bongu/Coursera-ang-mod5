@@ -45,10 +45,10 @@
 
     function SignUpController(SignUpService, $location) {
         var signupCtrl = this;
-        signupCtrl.signupFormSubmitted = false; // Initialize form submission state
+        signupCtrl.signupFormSubmitted = false;
 
         signupCtrl.submitForm = function() {
-            signupCtrl.signupFormSubmitted = true; // Set form submission state to true
+            signupCtrl.signupFormSubmitted = true;
             if (signupCtrl.signupForm.$valid) {
                 SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
                 signupCtrl.message = "Your information has been saved.";
@@ -73,18 +73,20 @@
 
         myInfoCtrl.userInfo = SignUpService.getUserInfo();
 
-        SignUpService.getFavoriteMenuItemWithDetails().then(function(favoriteMenuItemDetails) {
-            myInfoCtrl.favoriteMenuItem = favoriteMenuItemDetails;
-        }).catch(function(error) {
-            console.error('Error fetching favorite menu item:', error);
-            myInfoCtrl.favoriteMenuItem = null;
-        });
+        SignUpService.getFavoriteMenuItemWithDetails()
+            .then(function(favoriteMenuItemDetails) {
+                myInfoCtrl.favoriteMenuItem = favoriteMenuItemDetails;
+            })
+            .catch(function(error) {
+                console.error('Error fetching favorite menu item:', error);
+                myInfoCtrl.favoriteMenuItem = null;
+            });
     }
 
     angular.module('RestaurantApp')
         .service('SignUpService', SignUpService);
 
-    SignUpService.$inject = ['$http', '$q']; // Inject $q for promises
+    SignUpService.$inject = ['$http', '$q'];
 
     function SignUpService($http, $q) {
         var service = this;
@@ -126,48 +128,42 @@
             return userInfo;
         };
 
-        service.getFavoriteMenuItem = function() {
-            return favoriteMenuItem;
-        };
-
         service.getFavoriteMenuItemWithDetails = function() {
             return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json')
                 .then(function(response) {
-                    var menuItemDescription;
                     var menuItems = response.data;
-                    var favoriteMenuItemData = service.getFavoriteMenuItem();
+                    var favoriteMenuItemData = favoriteMenuItem;
+                    var menuItemDetails = null;
 
                     if (favoriteMenuItemData) {
-                        var categoryShortName, menuItemShortName;
-
                         for (var categoryKey in menuItems) {
                             var category = menuItems[categoryKey];
                             for (var i = 0; i < category.menu_items.length; i++) {
                                 if (category.menu_items[i].short_name === favoriteMenuItemData) {
-                                    categoryShortName = category.short_name || '';
-                                    menuItemShortName = category.menu_items[i].short_name || '';
-                                    menuItemDescription = category.menu_items[i].description || '';
+                                    menuItemDetails = category.menu_items[i];
                                     break;
                                 }
                             }
-                            if (categoryShortName && menuItemShortName) {
+                            if (menuItemDetails) {
                                 break;
                             }
                         }
-
-                        var imageUrl = '';
-                        if (categoryShortName && menuItemShortName) {
-                            imageUrl = 'images/menu/' + categoryShortName + '/' + menuItemShortName + '.jpg';
-                        }
-
-                        return {
-                            name: favoriteMenuItemData,
-                            imageUrl: imageUrl,
-                            description: menuItemDescription
-                        };
-                    } else {
-                        return null;
                     }
+
+                    return menuItemDetails;
+                })
+                .then(function(menuItemDetails) {
+                    if (menuItemDetails) {
+                        var imageUrl = 'images/menu/' + menuItemDetails.short_name + '.jpg';
+                        menuItemDetails.imageUrl = imageUrl;
+                        return menuItemDetails;
+                    } else {
+                        return $q.reject('Favorite menu item not found');
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Error fetching favorite menu item:', error);
+                    return $q.reject('Error fetching favorite menu item');
                 });
         };
     }
