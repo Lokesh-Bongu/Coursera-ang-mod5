@@ -45,37 +45,16 @@
 
     function SignUpController(SignUpService, $location) {
         var signupCtrl = this;
-        signupCtrl.signupFormSubmitted = false;
-        signupCtrl.validatedMessage = '';
+        signupCtrl.signupFormSubmitted = false; // Initialize form submission state
+        signupCtrl.message = '';
 
         signupCtrl.submitForm = function() {
-            signupCtrl.signupFormSubmitted = true;
+            signupCtrl.signupFormSubmitted = true; // Set form submission state to true
             if (signupCtrl.signupForm.$valid) {
-                SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem)
-                    .then(function(response) {
-                        signupCtrl.validatedMessage = "Your information has been saved.";
-                    })
-                    .catch(function(error) {
-                        console.error('Error saving user data:', error);
-                    });
+                SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
+                signupCtrl.message = "Your information has been saved.";
             } else {
-                signupCtrl.validatedMessage = "Please fill out all required fields correctly.";
-            }
-        };
-
-        signupCtrl.checkMenuItem = function() {
-            if (signupCtrl.favoriteMenuItem) {
-                SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
-                    .then(function(response) {
-                        signupCtrl.invalidMenuItem = response === null;
-                        if (signupCtrl.invalidMenuItem) {
-                            signupCtrl.validatedMessage = "Menu number exists.";
-                        } else {
-                            signupCtrl.validatedMessage = "No such menu number exists.";
-                        }
-                    });
-            } else {
-                signupCtrl.validatedMessage = "Please provide a menu number.";
+                signupCtrl.message = "Please fill out all required fields correctly.";
             }
         };
     }
@@ -126,7 +105,7 @@
                     for (var categoryKey in menuItems) {
                         var category = menuItems[categoryKey];
                         for (var i = 0; i < category.menu_items.length; i++) {
-                            if (category.menu_items[i].short_name === menuItem) {
+                            if (category.menu_items[i].name === menuItem) {
                                 menuItemExists = true;
                                 break;
                             }
@@ -176,8 +155,7 @@
 
                         return {
                             name: favoriteMenuItemData,
-                            imageUrl: imageUrl,
-                            description: menuItemDescription
+                            imageUrl: imageUrl + menuItemDescription
                         };
                     } else {
                         return null;
