@@ -105,7 +105,7 @@
                     for (var categoryKey in menuItems) {
                         var category = menuItems[categoryKey];
                         for (var i = 0; i < category.menu_items.length; i++) {
-                            if (category.menu_items[i].name === menuItem) {
+                            if (category.menu_items[i].short_name === menuItem) {
                                 menuItemExists = true;
                                 break;
                             }
