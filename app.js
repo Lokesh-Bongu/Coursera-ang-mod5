@@ -49,30 +49,17 @@
 
         signupCtrl.submitForm = function() {
             signupCtrl.signupFormSubmitted = true;
-            if (signupCtrl.signupForm.$valid) {
-                SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem)
-                    .then(function(response) {
-                        signupCtrl.message = "Your information has been saved.";
-                    })
-                    .catch(function(error) {
-                        console.error('Error saving user data:', error);
-                    });
+            if (signupCtrl.signupForm && signupCtrl.signupForm.$valid) {
+                SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
+                signupCtrl.message = "Your information has been saved.";
             }
         };
 
         signupCtrl.checkMenuItem = function() {
-            if (signupCtrl.favoriteMenuItem) {
-                SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
-                    .then(function(response) {
-                        signupCtrl.invalidMenuItem = response === null;
-                    })
-                    .catch(function(error) {
-                        console.error('Error checking menu item:', error);
-                        signupCtrl.invalidMenuItem = true;
-                    });
-            } else {
-                signupCtrl.invalidMenuItem = false;
-            }
+            SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
+                .then(function(response) {
+                    signupCtrl.invalidMenuItem = response === null;
+                });
         };
     }
 
@@ -105,21 +92,13 @@
         var favoriteMenuItem;
 
         service.saveUserData = function(firstName, lastName, email, phone, favoriteMenuItemData) {
-            var deferred = $q.defer();
-
-            // Simulate saving data to server
-            setTimeout(function() {
-                userInfo = {
-                    firstName: firstName,
-                    lastName: lastName,
-                    email: email,
-                    phone: phone
-                };
-                favoriteMenuItem = favoriteMenuItemData;
-                deferred.resolve();
-            }, 1000);
-
-            return deferred.promise;
+            userInfo = {
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                phone: phone
+            };
+            favoriteMenuItem = favoriteMenuItemData;
         };
 
         service.checkMenuItem = function(menuItem) {
