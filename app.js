@@ -142,6 +142,7 @@
                         var category = menuItems[categoryKey];
                         for (var i = 0; i < category.menu_items.length; i++) {
                             if (category.menu_items[i].short_name === favoriteMenuItemData) {
+                                favoriteMenu = category.menu_items[i].name
                                 categoryShortName = category.category.short_name;
                                 menuItemShortName = category.menu_items[i].short_name;
                                 menuItemDescription = category.menu_items[i].description;
@@ -156,7 +157,7 @@
                     var imageUrl = 'images/menu/' + categoryShortName + '/' + menuItemShortName + '.jpg';
 
                     return {
-                        name: favoriteMenuItemData,
+                        name: favoriteMenu,
                         imageUrl: imageUrl,
                         description: menuItemDescription
                     };
