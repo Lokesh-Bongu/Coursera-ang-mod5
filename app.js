@@ -41,45 +41,50 @@
     angular.module('RestaurantApp')
         .controller('SignUpController', SignUpController);
 
-    SignUpController.$inject = ['SignUpService', '$location'];
+    SignUpController.$inject = ['SignUpService', '$location', '$q'];
 
-    function SignUpController(SignUpService, $location) {
+    function SignUpController(SignUpService, $location, $q) {
         var signupCtrl = this;
         signupCtrl.signupFormSubmitted = false; // Initialize form submission state
-        signupCtrl.message = '';
 
         signupCtrl.submitForm = function() {
             signupCtrl.signupFormSubmitted = true; // Set form submission state to true
+
+            // Check if form is valid
             if (signupCtrl.signupForm.$valid) {
-                SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem)
+                // Check if menu item exists
+                SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
                     .then(function(response) {
-                        signupCtrl.message = "Your information has been saved.";
+                        if (response) {
+                            // Menu item exists, save user data
+                            SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
+                            signupCtrl.message = "Your information has been saved.";
+                        } else {
+                            // Menu item does not exist, display message
+                            signupCtrl.message = "Menu number does not exist.";
+                        }
                     })
                     .catch(function(error) {
-                        console.error('Error saving user data:', error);
-                        signupCtrl.message = error.message || 'An error occurred while saving your information.';
+                        console.error('Error checking menu item:', error);
+                        signupCtrl.message = "An error occurred while checking the menu item.";
                     });
             } else {
-                signupCtrl.message = "Please fill out all fields correctly.";
+                // Form is invalid, display validation message
+                signupCtrl.message = "Please fill out all required fields correctly.";
             }
         };
 
         signupCtrl.checkMenuItem = function() {
-            if (!signupCtrl.favoriteMenuItem) return;
-            
-            SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
-                .then(function(response) {
-                    signupCtrl.invalidMenuItem = response === null;
-                    if (signupCtrl.invalidMenuItem) {
-                        signupCtrl.message = 'Menu item does not exist.';
-                    } else {
-                        signupCtrl.message = '';
-                    }
-                })
-                .catch(function(error) {
-                    console.error('Error checking menu item:', error);
-                    signupCtrl.message = 'An error occurred while checking the menu item.';
-                });
+            if (signupCtrl.favoriteMenuItem) {
+                SignUpService.checkMenuItem(signupCtrl.favoriteMenuItem)
+                    .then(function(response) {
+                        signupCtrl.invalidMenuItem = !response;
+                    })
+                    .catch(function(error) {
+                        console.error('Error checking menu item:', error);
+                        signupCtrl.invalidMenuItem = true;
+                    });
+            }
         };
     }
 
@@ -104,7 +109,7 @@
     angular.module('RestaurantApp')
         .service('SignUpService', SignUpService);
 
-    SignUpService.$inject = ['$http', '$q']; // Inject $q for promises
+    SignUpService.$inject = ['$http', '$q'];
 
     function SignUpService($http, $q) {
         var service = this;
@@ -112,27 +117,13 @@
         var favoriteMenuItem;
 
         service.saveUserData = function(firstName, lastName, email, phone, favoriteMenuItemData) {
-            var deferred = $q.defer();
-
-            // Simulate saving data to server
-            setTimeout(function() {
-                // Validate phone number format
-                if (!isValidPhoneNumber(phone)) {
-                    deferred.reject({ message: 'Invalid phone number format.' });
-                    return;
-                }
-
-                userInfo = {
-                    firstName: firstName,
-                    lastName: lastName,
-                    email: email,
-                    phone: phone
-                };
-                favoriteMenuItem = favoriteMenuItemData;
-                deferred.resolve();
-            }, 1000);
-
-            return deferred.promise;
+            userInfo = {
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                phone: phone
+            };
+            favoriteMenuItem = favoriteMenuItemData;
         };
 
         service.checkMenuItem = function(menuItem) {
@@ -152,7 +143,11 @@
                             break;
                         }
                     }
-                    return menuItemExists ? menuItem : null;
+                    return menuItemExists;
+                })
+                .catch(function(error) {
+                    console.error('Error fetching menu items:', error);
+                    return $q.reject('Error fetching menu items');
                 });
         };
 
@@ -160,16 +155,12 @@
             return userInfo;
         };
 
-        service.getFavoriteMenuItem = function() {
-            return favoriteMenuItem;
-        };
-
         service.getFavoriteMenuItemWithDetails = function() {
             return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json')
                 .then(function(response) {
-                    var menuItemDescription;
                     var menuItems = response.data;
-                    var favoriteMenuItemData = service.getFavoriteMenuItem();
+                    var menuItemDescription;
+                    var favoriteMenuItemData = favoriteMenuItem;
 
                     if (favoriteMenuItemData) {
                         var categoryShortName, menuItemShortName;
@@ -199,13 +190,11 @@
                     } else {
                         return null;
                     }
+                })
+                .catch(function(error) {
+                    console.error('Error fetching favorite menu item:', error);
+                    return $q.reject('Error fetching favorite menu item');
                 });
         };
-
-        function isValidPhoneNumber(phone) {
-            // Phone number validation logic (customize as needed)
-            var phoneRegex = /^\d{10}$/; // Assuming 10-digit phone number
-            return phoneRegex.test(phone);
-        }
     }
 })();
