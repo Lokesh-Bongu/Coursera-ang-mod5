@@ -45,10 +45,10 @@
 
     function SignUpController(SignUpService, $location) {
         var signupCtrl = this;
-        signupCtrl.signupFormSubmitted = false;
+        signupCtrl.signupFormSubmitted = false; 
 
         signupCtrl.submitForm = function() {
-            signupCtrl.signupFormSubmitted = true;
+            signupCtrl.signupFormSubmitted = true; 
             if (signupCtrl.signupForm.$valid) {
                 SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
                 signupCtrl.message = "Your information has been saved.";
@@ -73,14 +73,12 @@
 
         myInfoCtrl.userInfo = SignUpService.getUserInfo();
 
-        SignUpService.getFavoriteMenuItemWithDetails()
-            .then(function(favoriteMenuItemDetails) {
-                myInfoCtrl.favoriteMenuItem = favoriteMenuItemDetails;
-            })
-            .catch(function(error) {
-                console.error('Error fetching favorite menu item:', error);
-                myInfoCtrl.favoriteMenuItem = null;
-            });
+        SignUpService.getFavoriteMenuItemWithDetails().then(function(favoriteMenuItemDetails) {
+            myInfoCtrl.favoriteMenuItem = favoriteMenuItemDetails;
+        }).catch(function(error) {
+            console.error('Error fetching favorite menu item:', error);
+            myInfoCtrl.favoriteMenuItem = null;
+        });
     }
 
     angular.module('RestaurantApp')
@@ -111,7 +109,7 @@
                     for (var categoryKey in menuItems) {
                         var category = menuItems[categoryKey];
                         for (var i = 0; i < category.menu_items.length; i++) {
-                            if (category.menu_items[i].short_name === menuItem) {
+                            if (category.menu_items[i].name === menuItem) {
                                 menuItemExists = true;
                                 break;
                             }
@@ -129,42 +127,48 @@
         };
 
         service.getFavoriteMenuItemWithDetails = function() {
+            var favoriteMenuItemData = service.getFavoriteMenuItem();
+
+            if (!favoriteMenuItemData) {
+                return $q.reject('Favorite menu item is not defined');
+            }
+
             return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json')
                 .then(function(response) {
                     var menuItems = response.data;
-                    var favoriteMenuItemData = favoriteMenuItem;
-                    var menuItemDetails = null;
+                    var categoryShortName, menuItemShortName, menuItemDescription;
 
-                    if (favoriteMenuItemData) {
-                        for (var categoryKey in menuItems) {
-                            var category = menuItems[categoryKey];
-                            for (var i = 0; i < category.menu_items.length; i++) {
-                                if (category.menu_items[i].short_name === favoriteMenuItemData) {
-                                    menuItemDetails = category.menu_items[i];
-                                    break;
-                                }
-                            }
-                            if (menuItemDetails) {
+                    for (var categoryKey in menuItems) {
+                        var category = menuItems[categoryKey];
+                        for (var i = 0; i < category.menu_items.length; i++) {
+                            if (category.menu_items[i].short_name === favoriteMenuItemData) {
+                                categoryShortName = category.category.short_name;
+                                menuItemShortName = category.menu_items[i].short_name;
+                                menuItemDescription = category.menu_items[i].description;
                                 break;
                             }
                         }
+                        if (categoryShortName && menuItemShortName) {
+                            break;
+                        }
                     }
 
-                    return menuItemDetails;
-                })
-                .then(function(menuItemDetails) {
-                    if (menuItemDetails) {
-                        var imageUrl = 'images/menu/' + menuItemDetails.short_name + '.jpg';
-                        menuItemDetails.imageUrl = imageUrl;
-                        return menuItemDetails;
-                    } else {
-                        return $q.reject('Favorite menu item not found');
-                    }
+                    var imageUrl = 'images/menu/' + categoryShortName + '/' + menuItemShortName + '.jpg';
+
+                    return {
+                        name: favoriteMenuItemData,
+                        imageUrl: imageUrl,
+                        description: menuItemDescription
+                    };
                 })
                 .catch(function(error) {
                     console.error('Error fetching favorite menu item:', error);
                     return $q.reject('Error fetching favorite menu item');
                 });
+        };
+
+        service.getFavoriteMenuItem = function() {
+            return favoriteMenuItem;
         };
     }
 })();
