@@ -55,7 +55,7 @@
                     .then(function(response) {
                         if (response === null) {
                             signupCtrl.invalidMenuItem = true;
-                            signupCtrl.message = "Invalid favorite menu item. Please select a valid menu item.";
+                            signupCtrl.message = "No such menu number exists.";
                         } else {
                             SignUpService.saveUserData(signupCtrl.firstName, signupCtrl.lastName, signupCtrl.email, signupCtrl.phone, signupCtrl.favoriteMenuItem);
                             signupCtrl.message = "Your information has been saved.";
@@ -122,7 +122,7 @@
                     for (var categoryKey in menuItems) {
                         var category = menuItems[categoryKey];
                         for (var i = 0; i < category.menu_items.length; i++) {
-                            if (category.menu_items[i].short_name === menuItem) {
+                            if (category.menu_items[i].name === menuItem) {
                                 menuItemExists = true;
                                 break;
                             }
@@ -166,6 +166,10 @@
                             if (categoryShortName && menuItemShortName) {
                                 break;
                             }
+                        }
+                        console.log("categoryShortName", categoryShortName, menuItemShortName)
+                        if (!categoryShortName || !menuItemShortName) {
+                            return $q.reject("Invalid menu item");
                         }
 
                         var imageUrl = 'images/menu/' + categoryShortName + '/' + menuItemShortName + '.jpg';
